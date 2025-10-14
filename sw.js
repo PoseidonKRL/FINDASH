@@ -5,8 +5,8 @@ const CACHE_NAME = 'findash-cache-v3';
 const urlsToCache = [
   '/',
   '/index.html',
-  '/public/manifest.json',
-  '/public/icon.svg',
+  '/manifest.json',
+  '/icon.svg',
 ];
 
 // Evento de instalação: abre o cache e armazena os arquivos essenciais.
