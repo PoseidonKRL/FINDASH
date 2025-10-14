@@ -184,15 +184,15 @@ const ReportsPage: React.FC<ReportsPageProps> = ({ onEditTransaction }) => {
                             const isExpanded = expandedRows.has(t.id);
 
                             return (
-                                <div key={t.id} className="bg-navy-800 rounded-xl border border-navy-700">
-                                    <div className="p-4 flex items-start space-x-3">
+                                <div key={t.id} className="bg-navy-800 rounded-xl border border-navy-700 p-4">
+                                    <div className="flex items-start space-x-3">
                                         <div className="p-3 bg-navy-900 rounded-full flex-shrink-0">
                                             {category && <category.icon className={`w-5 h-5 ${isIncome ? 'text-income' : 'text-expense'}`} />}
                                         </div>
                                         <div className="flex-1 min-w-0">
                                             <div className="flex justify-between items-start">
                                                 <div>
-                                                    <p className="font-semibold text-light-text truncate">{t.description}</p>
+                                                    <p className="font-semibold text-light-text break-words">{t.description}</p>
                                                     <p className="text-sm text-medium-text">{new Date(t.date).toLocaleDateString('pt-BR')}</p>
                                                 </div>
                                                  <div className="flex-shrink-0 w-5 h-5 flex items-center justify-center ml-2">
@@ -208,7 +208,7 @@ const ReportsPage: React.FC<ReportsPageProps> = ({ onEditTransaction }) => {
                                                 </div>
                                             </div>
                                             <div className="flex justify-between items-center mt-2">
-                                                <p className={`font-bold text-base whitespace-nowrap ${isIncome ? 'text-income' : 'text-expense'}`}>
+                                                <p className={`font-bold text-base ${isIncome ? 'text-income' : 'text-expense'}`}>
                                                     {isIncome ? '+' : '-'} {formatCurrency(t.amount)}
                                                 </p>
                                                 <div className="flex space-x-1">
@@ -216,21 +216,19 @@ const ReportsPage: React.FC<ReportsPageProps> = ({ onEditTransaction }) => {
                                                     <button onClick={() => handleOpenDeleteConfirm(t.id)} className="p-1 text-medium-text hover:text-expense"><TrashIcon className="w-4 h-4" /></button>
                                                 </div>
                                             </div>
+                                             {isExpanded && (hasSubItems || t.notes) && (
+                                                <div className="border-t border-navy-700 pt-3 mt-3 space-y-2">
+                                                     {t.notes && <p className="text-sm text-medium-text italic mb-2 break-words">Nota: {t.notes}</p>}
+                                                    {t.subItems?.map(item => (
+                                                        <div key={item.id} className="flex justify-between items-start text-sm gap-4">
+                                                            <p className="text-medium-text break-words flex-1 min-w-0">{item.description}</p>
+                                                            <p className={`font-medium whitespace-nowrap ${isIncome ? 'text-income/90' : 'text-expense/90'}`}>{isIncome ? '+' : '-'} {formatCurrency(item.amount)}</p>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
-                                    {isExpanded && (hasSubItems || t.notes) && (
-                                        <div className="pb-4 px-4 pl-4 sm:pl-[76px]">
-                                            <div className="border-t border-navy-700 pt-3 space-y-2">
-                                                 {t.notes && <p className="text-sm text-medium-text italic mb-2 break-words">Nota: {t.notes}</p>}
-                                                {t.subItems?.map(item => (
-                                                    <div key={item.id} className="flex justify-between items-start text-sm gap-4">
-                                                        <p className="text-medium-text break-words flex-1 min-w-0">{item.description}</p>
-                                                        <p className={`font-medium whitespace-nowrap ${isIncome ? 'text-income/90' : 'text-expense/90'}`}>{isIncome ? '+' : '-'} {formatCurrency(item.amount)}</p>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    )}
                                 </div>
                             );
                         }) : (

@@ -1,6 +1,31 @@
-import React, { createContext, useState, useContext, ReactNode, useMemo } from 'react';
+import React, { createContext, useState, useContext, ReactNode, useMemo, useEffect } from 'react';
 import { Transaction, Category, Goal, TransactionType } from '../types';
 import { TRANSACTIONS, CATEGORIES, GOALS } from '../constants';
+
+// --- Chaves para o LocalStorage ---
+const STORAGE_KEYS = {
+  TRANSACTIONS: 'findash_transactions',
+  CATEGORIES: 'findash_categories',
+  GOALS: 'findash_goals',
+};
+
+// --- Função para buscar o estado inicial do localStorage ou usar dados padrão ---
+const getInitialState = <T,>(key: string, fallback: T[]): T[] => {
+  try {
+    const storedValue = localStorage.getItem(key);
+    // Se não houver nada salvo, usa o fallback (dados iniciais) e já salva no storage.
+    if (storedValue === null) {
+      localStorage.setItem(key, JSON.stringify(fallback));
+      return fallback;
+    }
+    return JSON.parse(storedValue);
+  } catch (error) {
+    console.error(`Erro ao ler do localStorage a chave “${key}”:`, error);
+    // Em caso de erro, retorna o fallback para não quebrar a aplicação.
+    return fallback;
+  }
+};
+
 
 interface AppContextType {
   transactions: Transaction[];
@@ -21,10 +46,38 @@ interface AppContextType {
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const AppProvider = ({ children }: { children: ReactNode }) => {
-  const [transactions, setTransactions] = useState<Transaction[]>(TRANSACTIONS);
-  const [categories, setCategories] = useState<Category[]>(CATEGORIES);
-  const [goals, setGoals] = useState<Goal[]>(GOALS);
+  // --- Inicializa o estado usando a função que lê do localStorage ---
+  const [transactions, setTransactions] = useState<Transaction[]>(() => getInitialState(STORAGE_KEYS.TRANSACTIONS, TRANSACTIONS));
+  const [categories, setCategories] = useState<Category[]>(() => getInitialState(STORAGE_KEYS.CATEGORIES, CATEGORIES));
+  const [goals, setGoals] = useState<Goal[]>(() => getInitialState(STORAGE_KEYS.GOALS, GOALS));
 
+  // --- Efeitos para salvar automaticamente qualquer mudança no localStorage ---
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEYS.TRANSACTIONS, JSON.stringify(transactions));
+    } catch (error) {
+      console.error('Falha ao salvar transações no localStorage:', error);
+    }
+  }, [transactions]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEYS.CATEGORIES, JSON.stringify(categories));
+    } catch (error) {
+      console.error('Falha ao salvar categorias no localStorage:', error);
+    }
+  }, [categories]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEYS.GOALS, JSON.stringify(goals));
+    } catch (error) {
+      console.error('Falha ao salvar metas no localStorage:', error);
+    }
+  }, [goals]);
+
+
+  // --- Funções de manipulação de estado (permanecem as mesmas) ---
   const addTransaction = (transaction: Omit<Transaction, 'id'>) => {
     setTransactions(prev => [...prev, { ...transaction, id: `t${Date.now()}` }]);
   };
