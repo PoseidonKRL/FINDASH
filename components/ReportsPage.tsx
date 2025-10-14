@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, Label, ReferenceArea } from 'recharts';
 import { useAppContext } from '../context/AppContext';
 import { Transaction, TransactionType } from '../types';
-import { PencilIcon, TrashIcon, ChevronRightIcon, ChevronDownIcon, ChevronLeftIcon } from './icons';
+import { PencilIcon, TrashIcon, ChevronRightIcon, ChevronDownIcon, ChevronLeftIcon, getIcon } from './icons';
 import ConfirmationModal from './modals/ConfirmationModal';
 
 const formatCurrency = (value: number) => {
@@ -182,12 +182,13 @@ const ReportsPage: React.FC<ReportsPageProps> = ({ onEditTransaction }) => {
                             const isIncome = t.type === TransactionType.INCOME;
                             const hasSubItems = t.subItems && t.subItems.length > 0;
                             const isExpanded = expandedRows.has(t.id);
+                            const IconComponent = category ? getIcon(category.icon) : getIcon('default');
 
                             return (
                                 <div key={t.id} className="bg-navy-800 rounded-xl border border-navy-700 p-4">
                                     <div className="flex items-start space-x-3">
                                         <div className="p-3 bg-navy-900 rounded-full flex-shrink-0">
-                                            {category && <category.icon className={`w-5 h-5 ${isIncome ? 'text-income' : 'text-expense'}`} />}
+                                            {category && <IconComponent className={`w-5 h-5 ${isIncome ? 'text-income' : 'text-expense'}`} />}
                                         </div>
                                         <div className="flex-1 min-w-0">
                                             <div className="flex justify-between items-start">

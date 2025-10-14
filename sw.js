@@ -1,10 +1,25 @@
-const CACHE_NAME = 'findash-cache-v1';
+const CACHE_NAME = 'findash-cache-v2';
 
 // Arquivos do "app shell" que são essenciais para o funcionamento offline.
 const urlsToCache = [
   '/',
   '/index.html',
-  '/index.tsx', // Em um build real, seria o bundle JS
+  '/index.tsx',
+  '/App.tsx',
+  '/types.ts',
+  '/constants.ts',
+  '/context/AppContext.tsx',
+  '/components/BottomNav.tsx',
+  '/components/Dashboard.tsx',
+  '/components/GoalsPage.tsx',
+  '/components/icons.tsx',
+  '/components/ProfilePage.tsx',
+  '/components/ReportsPage.tsx',
+  '/components/SideNav.tsx',
+  '/components/modals/AddCategoryModal.tsx',
+  '/components/modals/AddGoalModal.tsx',
+  '/components/modals/AddTransactionModal.tsx',
+  '/components/modals/ConfirmationModal.tsx',
   '/public/manifest.json',
   '/public/icon.svg',
 ];

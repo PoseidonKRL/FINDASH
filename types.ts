@@ -6,12 +6,12 @@ export enum TransactionType {
 export interface Category {
   id: string;
   name: string;
-  icon: React.ComponentType<{ className?: string }>;
+  icon: string; // Changed from React.ComponentType to string
   type: TransactionType;
 }
 
 export interface SubItem {
-  id: string;
+  id:string;
   description: string;
   amount: number;
 }

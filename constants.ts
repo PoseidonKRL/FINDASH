@@ -1,12 +1,12 @@
 import { Category, Transaction, Goal, TransactionType } from './types';
-import { BriefcaseIcon, ShoppingCartIcon, BuildingStorefrontIcon, GiftIcon } from './components/icons';
 
 export const CATEGORIES: Category[] = [
-  { id: 'cat1', name: 'Salário', icon: BriefcaseIcon, type: TransactionType.INCOME },
-  { id: 'cat2', name: 'Freelance', icon: BriefcaseIcon, type: TransactionType.INCOME },
-  { id: 'cat3', name: 'Presentes', icon: GiftIcon, type: TransactionType.INCOME },
-  { id: 'cat4', name: 'Mercado', icon: ShoppingCartIcon, type: TransactionType.EXPENSE },
-  { id: 'cat5', name: 'Contas', icon: BuildingStorefrontIcon, type: TransactionType.EXPENSE },
+  { id: 'cat1', name: 'Salário', icon: 'BriefcaseIcon', type: TransactionType.INCOME },
+  { id: 'cat2', name: 'Freelance', icon: 'BanknotesIcon', type: TransactionType.INCOME },
+  { id: 'cat3', name: 'Presentes', icon: 'GiftIcon', type: TransactionType.INCOME },
+  { id: 'cat4', name: 'Mercado', icon: 'ShoppingCartIcon', type: TransactionType.EXPENSE },
+  { id: 'cat5', name: 'Contas', icon: 'BuildingStorefrontIcon', type: TransactionType.EXPENSE },
+  { id: 'cat6', name: 'Transporte', icon: 'CreditCardIcon', type: TransactionType.EXPENSE },
 ];
 
 export const TRANSACTIONS: Transaction[] = [
