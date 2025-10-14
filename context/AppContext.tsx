@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext, ReactNode, useMemo, useEffect } from 'react';
+import React, { createContext, useState, useContext, useMemo, useEffect, ReactNode } from 'react';
 import { Transaction, Category, Goal, TransactionType } from '../types';
 import { TRANSACTIONS, CATEGORIES, GOALS } from '../constants';
 
@@ -45,7 +45,12 @@ interface AppContextType {
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
-export const AppProvider = ({ children }: { children: ReactNode }) => {
+// FIX: This component was refactored to use React.FC for consistency with the rest of the application, resolving a typing issue.
+interface AppProviderProps {
+  children: ReactNode;
+}
+
+export const AppProvider = ({ children }: AppProviderProps) => {
   // --- Inicializa o estado usando a função que lê do localStorage ---
   const [transactions, setTransactions] = useState<Transaction[]>(() => getInitialState(STORAGE_KEYS.TRANSACTIONS, TRANSACTIONS));
   const [categories, setCategories] = useState<Category[]>(() => getInitialState(STORAGE_KEYS.CATEGORIES, CATEGORIES));

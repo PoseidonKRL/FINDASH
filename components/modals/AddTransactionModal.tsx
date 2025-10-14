@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useAppContext } from '../../context/AppContext';
 import { Transaction, TransactionType, SubItem } from '../../types';
-import { XMarkIcon, PlusIcon, TrashIcon } from '../icons';
+import { XMarkIcon, PlusIcon, TrashIcon, ChevronUpIcon, ChevronDownIcon } from '../icons';
 
 interface AddTransactionModalProps {
   isOpen: boolean;
@@ -91,6 +91,20 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({ isOpen, onClo
       setSubItems(newSubItems);
     }
   };
+  
+  const moveSubItem = (index: number, direction: 'up' | 'down') => {
+    if (direction === 'up' && index === 0) return;
+    if (direction === 'down' && index === subItems.length - 1) return;
+
+    const newSubItems = [...subItems];
+    const itemToMove = newSubItems[index];
+    const swapIndex = direction === 'up' ? index - 1 : index + 1;
+    
+    newSubItems[index] = newSubItems[swapIndex];
+    newSubItems[swapIndex] = itemToMove;
+
+    setSubItems(newSubItems);
+  };
 
   const filteredCategories = categories.filter(c => c.type === type);
 
@@ -136,14 +150,28 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({ isOpen, onClo
             <div className="space-y-3 pt-2">
                 <h3 className="text-md font-semibold text-light-text">Itens</h3>
                 {subItems.map((item, index) => (
-                    <div key={item.id} className="flex flex-wrap items-center gap-2">
-                        <div className="flex-1 min-w-[150px]">
-                            <input type="text" value={item.description} onChange={e => handleSubItemChange(index, 'description', e.target.value)} placeholder="Descrição do item" className="w-full bg-navy-900 border border-navy-700 rounded-lg py-2 px-3 text-sm text-light-text focus:outline-none focus:ring-1 focus:ring-primary" />
-                        </div>
-                        <div className="w-full sm:w-28">
-                            <input type="number" value={item.amount || ''} onChange={e => handleSubItemChange(index, 'amount', e.target.value)} placeholder="R$0,00" className="w-full bg-navy-900 border border-navy-700 rounded-lg py-2 px-3 text-sm text-light-text focus:outline-none focus:ring-1 focus:ring-primary" />
-                        </div>
-                        <div>
+                    <div key={item.id} className="space-y-2 p-3 bg-navy-900/50 rounded-lg">
+                        <input type="text" value={item.description} onChange={e => handleSubItemChange(index, 'description', e.target.value)} placeholder="Descrição do item" className="w-full bg-navy-900 border border-navy-700 rounded-lg py-2 px-3 text-sm text-light-text focus:outline-none focus:ring-1 focus:ring-primary" />
+                        <input type="number" value={item.amount || ''} onChange={e => handleSubItemChange(index, 'amount', e.target.value)} placeholder="R$0,00" className="w-full bg-navy-900 border border-navy-700 rounded-lg py-2 px-3 text-sm text-light-text focus:outline-none focus:ring-1 focus:ring-primary" />
+                        <div className="flex items-center gap-1">
+                            <button
+                                type="button"
+                                onClick={() => moveSubItem(index, 'up')}
+                                disabled={index === 0}
+                                className="text-medium-text p-2 rounded-md hover:bg-navy-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                                aria-label="Mover item para cima"
+                            >
+                                <ChevronUpIcon className="w-5 h-5" />
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => moveSubItem(index, 'down')}
+                                disabled={index === subItems.length - 1}
+                                className="text-medium-text p-2 rounded-md hover:bg-navy-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                                aria-label="Mover item para baixo"
+                            >
+                                <ChevronDownIcon className="w-5 h-5" />
+                            </button>
                             {subItems.length > 1 && (
                                 <button type="button" onClick={() => removeSubItem(index)} className="text-medium-text hover:text-expense p-2 rounded-md hover:bg-navy-700">
                                     <TrashIcon className="w-5 h-5" />

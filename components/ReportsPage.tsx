@@ -2,8 +2,9 @@ import React, { useState, useMemo } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, Label, ReferenceArea } from 'recharts';
 import { useAppContext } from '../context/AppContext';
 import { Transaction, TransactionType } from '../types';
-import { PencilIcon, TrashIcon, ChevronRightIcon, ChevronDownIcon, ChevronLeftIcon, getIcon } from './icons';
+import { PencilIcon, TrashIcon, ChevronRightIcon, ChevronDownIcon, ChevronLeftIcon, getIcon, DocumentDuplicateIcon } from './icons';
 import ConfirmationModal from './modals/ConfirmationModal';
+import DuplicateTransactionModal from './modals/DuplicateTransactionModal';
 
 const formatCurrency = (value: number) => {
     return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -37,6 +38,8 @@ const ReportsPage: React.FC<ReportsPageProps> = ({ onEditTransaction }) => {
     const [filter, setFilter] = useState<'all' | 'income' | 'expense'>('all');
     const [isConfirmModalOpen, setConfirmModalOpen] = useState(false);
     const [transactionToDelete, setTransactionToDelete] = useState<string | null>(null);
+    const [isDuplicateModalOpen, setDuplicateModalOpen] = useState(false);
+    const [transactionToDuplicate, setTransactionToDuplicate] = useState<Transaction | null>(null);
     const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
     const [selectedDate, setSelectedDate] = useState(new Date());
 
@@ -117,6 +120,11 @@ const ReportsPage: React.FC<ReportsPageProps> = ({ onEditTransaction }) => {
         }
         setConfirmModalOpen(false);
         setTransactionToDelete(null);
+    };
+    
+    const handleOpenDuplicateModal = (transaction: Transaction) => {
+        setTransactionToDuplicate(transaction);
+        setDuplicateModalOpen(true);
     };
 
     return (
@@ -213,6 +221,7 @@ const ReportsPage: React.FC<ReportsPageProps> = ({ onEditTransaction }) => {
                                                     {isIncome ? '+' : '-'} {formatCurrency(t.amount)}
                                                 </p>
                                                 <div className="flex space-x-1">
+                                                    <button onClick={() => handleOpenDuplicateModal(t)} className="p-1 text-medium-text hover:text-primary"><DocumentDuplicateIcon className="w-4 h-4" /></button>
                                                     <button onClick={() => onEditTransaction(t)} className="p-1 text-medium-text hover:text-primary"><PencilIcon className="w-4 h-4" /></button>
                                                     <button onClick={() => handleOpenDeleteConfirm(t.id)} className="p-1 text-medium-text hover:text-expense"><TrashIcon className="w-4 h-4" /></button>
                                                 </div>
@@ -246,6 +255,11 @@ const ReportsPage: React.FC<ReportsPageProps> = ({ onEditTransaction }) => {
                 onConfirm={handleDeleteTransaction}
                 title="Confirmar Exclusão"
                 message="Você tem certeza que deseja excluir esta transação? Esta ação não pode ser desfeita."
+            />
+             <DuplicateTransactionModal
+                isOpen={isDuplicateModalOpen}
+                onClose={() => setDuplicateModalOpen(false)}
+                transactionToDuplicate={transactionToDuplicate}
             />
         </div>
     );
