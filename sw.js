@@ -1,25 +1,10 @@
-const CACHE_NAME = 'findash-cache-v2';
+const CACHE_NAME = 'findash-cache-v3';
 
 // Arquivos do "app shell" que são essenciais para o funcionamento offline.
+// Simplificamos a lista para o essencial; o resto será cacheado dinamicamente.
 const urlsToCache = [
   '/',
   '/index.html',
-  '/index.tsx',
-  '/App.tsx',
-  '/types.ts',
-  '/constants.ts',
-  '/context/AppContext.tsx',
-  '/components/BottomNav.tsx',
-  '/components/Dashboard.tsx',
-  '/components/GoalsPage.tsx',
-  '/components/icons.tsx',
-  '/components/ProfilePage.tsx',
-  '/components/ReportsPage.tsx',
-  '/components/SideNav.tsx',
-  '/components/modals/AddCategoryModal.tsx',
-  '/components/modals/AddGoalModal.tsx',
-  '/components/modals/AddTransactionModal.tsx',
-  '/components/modals/ConfirmationModal.tsx',
   '/public/manifest.json',
   '/public/icon.svg',
 ];
@@ -29,7 +14,7 @@ self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => {
-        console.log('Cache aberto');
+        console.log('Cache aberto e preparando para cachear o app shell');
         return cache.addAll(urlsToCache);
       })
   );
@@ -58,7 +43,19 @@ self.addEventListener('fetch', event => {
     return;
   }
   
-  // Estratégia: Stale-While-Revalidate
+  // Lógica para navegação (resolvendo o problema de 404 em SPAs)
+  // Se for uma requisição de navegação, sirva sempre o index.html.
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      caches.match('/index.html')
+        .then(response => {
+          return response || fetch(event.request);
+        })
+    );
+    return;
+  }
+
+  // Estratégia: Stale-While-Revalidate para todos os outros recursos (JS, CSS, etc.)
   // Responde com o cache imediatamente se disponível (stale), 
   // e em paralelo, busca uma versão atualizada na rede para revalidar o cache.
   event.respondWith(
