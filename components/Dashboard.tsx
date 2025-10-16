@@ -1,7 +1,7 @@
 import React from 'react';
 import { useAppContext } from '../context/AppContext';
 import { Page } from '../types';
-import { ChevronRightIcon, ArrowDownTrayIcon, ArrowUpTrayIcon, FlagIcon, BanknotesIcon } from './icons';
+import { ChevronRightIcon, ArrowDownTrayIcon, ArrowUpTrayIcon, FlagIcon, BanknotesIcon, ChevronLeftIcon } from './icons';
 import { useTheme } from '../context/ThemeContext';
 
 interface DashboardProps {
@@ -13,7 +13,7 @@ const formatCurrency = (value: number) => {
 };
 
 const Dashboard: React.FC<DashboardProps> = ({ navigateTo }) => {
-    const { totalIncome, totalExpenses, goals } = useAppContext();
+    const { totalIncome, totalExpenses, goals, selectedDashboardDate, handleDashboardPreviousMonth, handleDashboardNextMonth } = useAppContext();
     const { theme } = useTheme();
     const monthlyBalance = totalIncome - totalExpenses;
     const firstGoal = goals[0];
@@ -43,6 +43,19 @@ const Dashboard: React.FC<DashboardProps> = ({ navigateTo }) => {
 
     return (
         <div className="p-4 md:p-8 space-y-6">
+             {/* Date Navigator */}
+            <div className={`flex justify-between items-center p-2 rounded-xl border ${theme === 'neon' ? 'bg-card-bg border-border-color' : 'bg-dark-blue-card border-dark-blue-border'}`}>
+                <button onClick={handleDashboardPreviousMonth} className={`p-2 rounded-full transition-colors ${theme === 'neon' ? 'hover:bg-border-color' : 'hover:bg-dark-blue-border'}`} aria-label="Mês anterior">
+                    <ChevronLeftIcon className="w-5 h-5 text-medium-text" />
+                </button>
+                <h3 className="font-semibold text-lg text-light-text capitalize">
+                    {selectedDashboardDate.toLocaleString('pt-BR', { month: 'long', year: 'numeric' })}
+                </h3>
+                <button onClick={handleDashboardNextMonth} className={`p-2 rounded-full transition-colors ${theme === 'neon' ? 'hover:bg-border-color' : 'hover:bg-dark-blue-border'}`} aria-label="Próximo mês">
+                    <ChevronRightIcon className="w-5 h-5 text-medium-text" />
+                </button>
+            </div>
+
             {/* Top row of cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {/* Receita Total Card */}

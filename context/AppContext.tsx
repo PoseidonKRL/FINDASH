@@ -41,6 +41,9 @@ interface AppContextType {
   totalIncome: number;
   totalExpenses: number;
   totalBalance: number;
+  selectedDashboardDate: Date;
+  handleDashboardPreviousMonth: () => void;
+  handleDashboardNextMonth: () => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -55,6 +58,7 @@ export const AppProvider = ({ children }: AppProviderProps) => {
   const [transactions, setTransactions] = useState<Transaction[]>(() => getInitialState(STORAGE_KEYS.TRANSACTIONS, TRANSACTIONS));
   const [categories, setCategories] = useState<Category[]>(() => getInitialState(STORAGE_KEYS.CATEGORIES, CATEGORIES));
   const [goals, setGoals] = useState<Goal[]>(() => getInitialState(STORAGE_KEYS.GOALS, GOALS));
+  const [selectedDashboardDate, setSelectedDashboardDate] = useState(new Date());
 
   // --- Efeitos para salvar automaticamente qualquer mudança no localStorage ---
   useEffect(() => {
@@ -80,6 +84,14 @@ export const AppProvider = ({ children }: AppProviderProps) => {
       console.error('Falha ao salvar metas no localStorage:', error);
     }
   }, [goals]);
+
+  const handleDashboardPreviousMonth = () => {
+    setSelectedDashboardDate(prev => new Date(prev.getFullYear(), prev.getMonth() - 1, 1));
+  };
+
+  const handleDashboardNextMonth = () => {
+    setSelectedDashboardDate(prev => new Date(prev.getFullYear(), prev.getMonth() + 1, 1));
+  };
 
 
   // --- Funções de manipulação de estado (permanecem as mesmas) ---
@@ -112,13 +124,12 @@ export const AppProvider = ({ children }: AppProviderProps) => {
   };
 
   const { totalIncome, totalExpenses } = useMemo(() => {
-    const currentMonth = new Date().getMonth();
-    // FIX: Corrected a typo from `new date()` to `new Date()`.
-    const currentYear = new Date().getFullYear();
+    const selectedMonth = selectedDashboardDate.getMonth();
+    const selectedYear = selectedDashboardDate.getFullYear();
 
     return transactions.reduce((acc, t) => {
       const transactionDate = new Date(t.date);
-      if (transactionDate.getMonth() === currentMonth && transactionDate.getFullYear() === currentYear) {
+      if (transactionDate.getMonth() === selectedMonth && transactionDate.getFullYear() === selectedYear) {
         if (t.type === TransactionType.INCOME) {
           acc.totalIncome += t.amount;
         } else {
@@ -127,7 +138,7 @@ export const AppProvider = ({ children }: AppProviderProps) => {
       }
       return acc;
     }, { totalIncome: 0, totalExpenses: 0 });
-  }, [transactions]);
+  }, [transactions, selectedDashboardDate]);
   
   const totalBalance = useMemo(() => {
     return transactions.reduce((acc, t) => {
@@ -154,6 +165,9 @@ export const AppProvider = ({ children }: AppProviderProps) => {
     totalIncome,
     totalExpenses,
     totalBalance,
+    selectedDashboardDate,
+    handleDashboardPreviousMonth,
+    handleDashboardNextMonth,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
