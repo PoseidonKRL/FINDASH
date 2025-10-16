@@ -14,6 +14,7 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({ isOpen, onClo
   const [type, setType] = useState<TransactionType>(TransactionType.EXPENSE);
   const [description, setDescription] = useState('');
   const [categoryId, setCategoryId] = useState('');
+  const [date, setDate] = useState(''); // State for date
   const [notes, setNotes] = useState('');
   const [subItems, setSubItems] = useState<SubItem[]>([{ id: `si${Date.now()}`, description: '', amount: 0 }]);
 
@@ -27,6 +28,7 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({ isOpen, onClo
     setType(TransactionType.EXPENSE);
     setDescription('');
     setCategoryId('');
+    setDate(new Date().toISOString().split('T')[0]); // Set today as default date
     setNotes('');
     setSubItems([{ id: `si${Date.now()}`, description: '', amount: 0 }]);
   };
@@ -37,6 +39,7 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({ isOpen, onClo
             setType(transactionToEdit.type);
             setDescription(transactionToEdit.description);
             setCategoryId(transactionToEdit.categoryId);
+            setDate(new Date(transactionToEdit.date).toISOString().split('T')[0]); // Set date from transaction
             setNotes(transactionToEdit.notes || '');
             if (transactionToEdit.subItems && transactionToEdit.subItems.length > 0) {
               setSubItems(transactionToEdit.subItems);
@@ -51,7 +54,7 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({ isOpen, onClo
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (totalAmount <= 0 || !description || !categoryId) return;
+    if (totalAmount <= 0 || !description || !categoryId || !date) return;
     
     const transactionData = {
         amount: totalAmount,
@@ -60,7 +63,7 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({ isOpen, onClo
         type,
         notes,
         subItems: subItems.filter(item => item.description && item.amount > 0),
-        date: isEditing ? transactionToEdit.date : new Date().toISOString()
+        date: new Date(date + 'T00:00:00').toISOString() // Use date from state
     };
 
     if (isEditing) {
@@ -134,7 +137,7 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({ isOpen, onClo
                 </button>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
+                <div className="md:col-span-2">
                     <label htmlFor="description" className="block text-sm font-medium text-medium-text mb-1">Descrição Principal</label>
                     <input type="text" id="description" value={description} onChange={(e) => setDescription(e.target.value)} className="mt-1 block w-full bg-navy-900 border border-navy-700 rounded-lg shadow-sm py-2 px-3 text-light-text focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary" required />
                 </div>
@@ -144,6 +147,17 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({ isOpen, onClo
                         <option value="">Selecione</option>
                         {filteredCategories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                     </select>
+                </div>
+                <div>
+                    <label htmlFor="date" className="block text-sm font-medium text-medium-text mb-1">Data</label>
+                    <input
+                      type="date"
+                      id="date"
+                      value={date}
+                      onChange={(e) => setDate(e.target.value)}
+                      className="mt-1 block w-full bg-navy-900 border border-navy-700 rounded-lg shadow-sm py-2 px-3 text-light-text focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
+                      required
+                    />
                 </div>
             </div>
           
