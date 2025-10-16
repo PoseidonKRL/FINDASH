@@ -40,6 +40,7 @@ interface AppContextType {
   deleteGoal: (goalId: string) => void;
   totalIncome: number;
   totalExpenses: number;
+  netBalanceForMonth: number;
   totalBalance: number;
   selectedDashboardDate: Date;
   handleDashboardPreviousMonth: () => void;
@@ -140,16 +141,30 @@ export const AppProvider = ({ children }: AppProviderProps) => {
     }, { totalIncome: 0, totalExpenses: 0 });
   }, [transactions, selectedDashboardDate]);
   
+  const netBalanceForMonth = useMemo(() => {
+    return totalIncome - totalExpenses;
+  }, [totalIncome, totalExpenses]);
+
   const totalBalance = useMemo(() => {
+    const year = selectedDashboardDate.getFullYear();
+    const month = selectedDashboardDate.getMonth();
+    // Define o fim do período como o último milissegundo do último dia do mês selecionado
+    const endDate = new Date(year, month + 1, 0);
+    endDate.setHours(23, 59, 59, 999);
+
     return transactions.reduce((acc, t) => {
-      if (t.type === TransactionType.INCOME) {
-        acc += t.amount;
-      } else {
-        acc -= t.amount;
+      const transactionDate = new Date(t.date);
+      // Inclui apenas transações até o final do mês selecionado
+      if (transactionDate <= endDate) {
+        if (t.type === TransactionType.INCOME) {
+          acc += t.amount;
+        } else {
+          acc -= t.amount;
+        }
       }
       return acc;
     }, 0);
-  }, [transactions]);
+  }, [transactions, selectedDashboardDate]);
 
   const value = {
     transactions,
@@ -164,6 +179,7 @@ export const AppProvider = ({ children }: AppProviderProps) => {
     deleteGoal,
     totalIncome,
     totalExpenses,
+    netBalanceForMonth,
     totalBalance,
     selectedDashboardDate,
     handleDashboardPreviousMonth,

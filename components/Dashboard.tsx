@@ -1,7 +1,7 @@
 import React from 'react';
 import { useAppContext } from '../context/AppContext';
 import { Page } from '../types';
-import { ChevronRightIcon, ArrowDownTrayIcon, ArrowUpTrayIcon, FlagIcon, BanknotesIcon, ChevronLeftIcon } from './icons';
+import { ChevronRightIcon, ArrowDownTrayIcon, ArrowUpTrayIcon, FlagIcon, BanknotesIcon, ChevronLeftIcon, WalletIcon } from './icons';
 import { useTheme } from '../context/ThemeContext';
 
 interface DashboardProps {
@@ -13,9 +13,8 @@ const formatCurrency = (value: number) => {
 };
 
 const Dashboard: React.FC<DashboardProps> = ({ navigateTo }) => {
-    const { totalIncome, totalExpenses, goals, selectedDashboardDate, handleDashboardPreviousMonth, handleDashboardNextMonth } = useAppContext();
+    const { totalIncome, totalExpenses, totalBalance, netBalanceForMonth, goals, selectedDashboardDate, handleDashboardPreviousMonth, handleDashboardNextMonth } = useAppContext();
     const { theme } = useTheme();
-    const monthlyBalance = totalIncome - totalExpenses;
     const firstGoal = goals[0];
     const goalProgress = firstGoal ? (firstGoal.currentAmount / firstGoal.targetAmount) * 100 : 0;
 
@@ -31,13 +30,17 @@ const Dashboard: React.FC<DashboardProps> = ({ navigateTo }) => {
         ? `bg-card-bg border-border-color hover:border-neon-red/50 ${neonCardHover} hover:shadow-neon-red/10` 
         : `bg-dark-blue-card border-dark-blue-border bg-expense-red/10`;
 
-    const netBalanceCardClasses = theme === 'neon'
+    const accumulatedBalanceCardClasses = theme === 'neon'
         ? `bg-card-bg border-border-color hover:border-neon-cyan/50 ${neonCardHover} hover:shadow-neon-cyan/10`
         : `bg-dark-blue-card border-dark-blue-border bg-primary-blue/10`;
+    
+    const netBalanceMonthTextClasses = netBalanceForMonth >= 0 
+        ? (theme === 'neon' ? 'text-neon-green text-glow-green' : 'text-income-green')
+        : (theme === 'neon' ? 'text-neon-red text-glow-red' : 'text-expense-red');
 
     const incomeTextClasses = theme === 'neon' ? 'text-neon-green text-glow-green' : 'text-income-green';
     const expenseTextClasses = theme === 'neon' ? 'text-neon-red text-glow-red' : 'text-expense-red';
-    const netBalanceTextClasses = theme === 'neon' ? 'text-neon-cyan text-glow-cyan' : 'text-primary-blue';
+    const accumulatedBalanceTextClasses = theme === 'neon' ? 'text-neon-cyan text-glow-cyan' : 'text-primary-blue';
     
     const detailsButtonClasses = theme === 'neon' ? 'text-neon-cyan' : 'text-primary-blue';
 
@@ -56,9 +59,9 @@ const Dashboard: React.FC<DashboardProps> = ({ navigateTo }) => {
                 </button>
             </div>
 
-            {/* Top row of cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {/* Receita Total Card */}
+            {/* Income & Expense Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Receita do Mês Card */}
                 <div className={`${cardBaseClasses} ${incomeCardClasses}`}>
                     <div className="flex items-center space-x-3 mb-3">
                          <div className={`p-2 rounded-lg ${theme === 'neon' ? 'bg-neon-green/10' : 'bg-income-green/10'}`}>
@@ -69,33 +72,47 @@ const Dashboard: React.FC<DashboardProps> = ({ navigateTo }) => {
                     <p className={`text-3xl font-bold ${incomeTextClasses}`}>{formatCurrency(totalIncome)}</p>
                 </div>
 
-                {/* Despesa Total Card */}
+                {/* Despesa do Mês Card */}
                 <div className={`${cardBaseClasses} ${expenseCardClasses}`}>
                     <div className="flex items-center space-x-3 mb-3">
                         <div className={`p-2 rounded-lg ${theme === 'neon' ? 'bg-neon-red/10' : 'bg-expense-red/10'}`}>
                             <ArrowUpTrayIcon className={`w-5 h-5 ${theme === 'neon' ? 'text-neon-red' : 'text-expense-red'}`} />
                         </div>
-                        <p className="text-medium-text font-medium">Despesa Total</p>
+                        <p className="text-medium-text font-medium">Despesa do Mês</p>
                     </div>
                     <p className={`text-3xl font-bold ${expenseTextClasses}`}>{formatCurrency(totalExpenses)}</p>
                 </div>
+            </div>
+            
+            {/* Balance Cards */}
+            <div className="grid grid-cols-2 gap-6">
+                 {/* Saldo do Mês Card */}
+                <div className={`p-4 sm:p-6 rounded-2xl border transition-all duration-300 ${theme === 'neon' ? 'bg-card-bg border-border-color' : 'bg-dark-blue-card border-dark-blue-border'}`}>
+                    <div className="flex items-center space-x-2 sm:space-x-3 mb-3">
+                         <div className={`p-2 rounded-lg ${netBalanceForMonth >= 0 ? (theme === 'neon' ? 'bg-neon-green/10' : 'bg-income-green/10') : (theme === 'neon' ? 'bg-neon-red/10' : 'bg-expense-red/10')}`}>
+                            <WalletIcon className={`w-5 h-5 ${netBalanceMonthTextClasses}`} />
+                        </div>
+                        <p className="text-medium-text font-medium text-sm sm:text-base whitespace-nowrap"><span className="hidden sm:inline">Saldo do </span>Mês</p>
+                    </div>
+                    <p className={`text-2xl sm:text-3xl font-bold ${netBalanceMonthTextClasses}`}>{formatCurrency(netBalanceForMonth)}</p>
+                </div>
 
-                {/* Saldo Líquido Card */}
-                <div className={`${cardBaseClasses} ${netBalanceCardClasses}`}>
-                    <div className="flex items-center space-x-3 mb-3">
+                {/* Saldo Acumulado Card */}
+                <div className={`p-4 sm:p-6 rounded-2xl border transition-all duration-300 ${accumulatedBalanceCardClasses}`}>
+                    <div className="flex items-center space-x-2 sm:space-x-3 mb-3">
                          <div className={`p-2 rounded-lg ${theme === 'neon' ? 'bg-neon-cyan/10' : 'bg-primary-blue/10'}`}>
                             <BanknotesIcon className={`w-5 h-5 ${theme === 'neon' ? 'text-neon-cyan' : 'text-primary-blue'}`} />
                         </div>
-                        <p className="text-medium-text font-medium">Saldo Líquido</p>
+                        <p className="text-medium-text font-medium text-sm sm:text-base whitespace-nowrap"><span className="hidden sm:inline">Saldo </span>Acumulado</p>
                     </div>
-                    <p className={`text-3xl font-bold ${netBalanceTextClasses}`}>{formatCurrency(monthlyBalance)}</p>
+                    <p className={`text-2xl sm:text-3xl font-bold ${accumulatedBalanceTextClasses}`}>{formatCurrency(totalBalance)}</p>
                 </div>
             </div>
 
             {/* Bottom row with Goals */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 gap-6">
                 {firstGoal && (
-                     <div className={`lg:col-span-3 p-6 rounded-2xl flex flex-col border ${theme === 'neon' ? 'bg-card-bg border-border-color' : 'bg-dark-blue-card border-dark-blue-border'}`}>
+                     <div className={`p-6 rounded-2xl flex flex-col border ${theme === 'neon' ? 'bg-card-bg border-border-color' : 'bg-dark-blue-card border-dark-blue-border'}`}>
                         <div className="flex items-center space-x-3 mb-4">
                              <div className={`p-2 rounded-lg ${theme === 'neon' ? 'bg-neon-cyan/10' : 'bg-primary-blue/10'}`}>
                                 <FlagIcon className={`w-6 h-6 ${detailsButtonClasses}`} />
