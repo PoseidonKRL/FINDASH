@@ -1,5 +1,6 @@
 import React from 'react';
 import { XMarkIcon, ExclamationTriangleIcon } from '../icons';
+import { useTheme } from '../../context/ThemeContext';
 
 interface ConfirmationModalProps {
   isOpen: boolean;
@@ -10,7 +11,14 @@ interface ConfirmationModalProps {
 }
 
 const ConfirmationModal: React.FC<ConfirmationModalProps> = ({ isOpen, onClose, onConfirm, title, message }) => {
+  const { theme } = useTheme();
+
   if (!isOpen) return null;
+
+  const modalBg = theme === 'neon' ? 'bg-card-bg border-border-color' : 'bg-dark-blue-card border-dark-blue-border';
+  const secondaryButton = theme === 'neon' ? 'bg-border-color hover:bg-border-color/80' : 'bg-dark-blue-border hover:bg-dark-blue-border/80';
+  const confirmButton = theme === 'neon' ? 'bg-neon-pink text-white hover:bg-neon-pink/80' : 'bg-expense-red text-white hover:bg-red-500';
+  const iconColor = theme === 'neon' ? 'text-neon-pink' : 'text-expense-red';
 
   return (
     <div 
@@ -18,12 +26,12 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({ isOpen, onClose, 
       onClick={onClose}
     >
       <div 
-        className={`bg-navy-800 rounded-2xl p-6 w-full max-w-sm m-4 border border-navy-700 shadow-2xl transition-transform duration-300 transform scale-95 ${isOpen && '!scale-100'}`}
+        className={`rounded-2xl p-6 w-full max-w-sm m-4 border shadow-2xl transition-transform duration-300 transform scale-95 ${isOpen && '!scale-100'} ${modalBg}`}
         onClick={e => e.stopPropagation()}
       >
         <div className="text-center">
-            <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-500/10 mb-4">
-                <ExclamationTriangleIcon className="h-6 w-6 text-expense" aria-hidden="true" />
+            <div className={`mx-auto flex items-center justify-center h-12 w-12 rounded-full mb-4 ${theme === 'neon' ? 'bg-neon-pink/10' : 'bg-expense-red/10'}`}>
+                <ExclamationTriangleIcon className={`h-6 w-6 ${iconColor}`} aria-hidden="true" />
             </div>
             <h3 className="text-lg leading-6 font-bold text-light-text" id="modal-title">
                 {title}
@@ -38,14 +46,14 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({ isOpen, onClose, 
             <button 
                 type="button" 
                 onClick={onClose} 
-                className="px-4 py-2 text-sm font-medium text-light-text bg-navy-700 rounded-lg hover:bg-navy-700/80 w-full"
+                className={`px-4 py-2 text-sm font-medium text-light-text rounded-lg w-full ${secondaryButton}`}
             >
                 Cancelar
             </button>
             <button 
                 type="button" 
                 onClick={onConfirm} 
-                className="px-4 py-2 text-sm font-medium text-white bg-expense rounded-lg hover:bg-red-500 w-full"
+                className={`px-4 py-2 text-sm font-medium rounded-lg w-full ${confirmButton}`}
             >
                 Confirmar
             </button>

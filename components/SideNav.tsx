@@ -1,6 +1,7 @@
 import React from 'react';
 import { Page } from '../types';
 import { HomeIcon, ChartBarIcon, FlagIcon, UserIcon, PlusIcon, CurrencyDollarIcon } from './icons';
+import { useTheme } from '../context/ThemeContext';
 
 interface SideNavProps {
   currentPage: Page;
@@ -9,6 +10,7 @@ interface SideNavProps {
 }
 
 const SideNav: React.FC<SideNavProps> = ({ currentPage, setCurrentPage, onAddClick }) => {
+  const { theme } = useTheme();
   const navItems = [
     { page: 'dashboard' as Page, icon: HomeIcon, label: 'Dashboard' },
     { page: 'reports' as Page, icon: ChartBarIcon, label: 'Relatórios' },
@@ -17,20 +19,23 @@ const SideNav: React.FC<SideNavProps> = ({ currentPage, setCurrentPage, onAddCli
   ];
 
   return (
-    <aside className="hidden md:flex flex-col w-64 h-screen bg-navy-800 border-r border-navy-700 fixed left-0 top-0">
-        <div className="flex items-center justify-center h-20 border-b border-navy-700">
-            <CurrencyDollarIcon className="w-8 h-8 text-primary" />
+    <aside className={`hidden md:flex flex-col w-64 h-screen border-r fixed left-0 top-0 ${theme === 'neon' ? 'bg-card-bg border-border-color' : 'bg-dark-blue-card border-dark-blue-border'}`}>
+        <div className={`flex items-center justify-center h-20 border-b ${theme === 'neon' ? 'border-border-color' : 'border-dark-blue-border'}`}>
+            <CurrencyDollarIcon className={`w-8 h-8 ${theme === 'neon' ? 'text-neon-cyan' : 'text-primary-blue'}`} />
             <span className="ml-2 text-2xl font-bold text-light-text tracking-wide">FinDash</span>
         </div>
         <nav className="flex-1 p-4 space-y-2">
             {navItems.map((item) => {
                  const isActive = currentPage === item.page;
+                 const activeClasses = theme === 'neon' ? 'bg-neon-cyan/10 text-neon-cyan' : 'bg-primary-blue/10 text-primary-blue';
+                 const inactiveClasses = theme === 'neon' ? 'text-medium-text hover:bg-dark-bg hover:text-light-text' : 'text-medium-text hover:bg-dark-blue-bg hover:text-light-text';
+
                 return (
                     <button
                         key={item.page}
                         onClick={() => setCurrentPage(item.page)}
                         className={`w-full flex items-center space-x-4 px-4 py-3 rounded-lg text-md font-semibold transition-all duration-200 ${
-                            isActive ? 'bg-primary text-white shadow-lg shadow-blue-500/20' : 'text-medium-text hover:bg-navy-900/50 hover:text-light-text'
+                            isActive ? activeClasses : inactiveClasses
                         }`}
                         aria-label={`Ir para ${item.label}`}
                         aria-current={isActive ? 'page' : undefined}
@@ -41,10 +46,14 @@ const SideNav: React.FC<SideNavProps> = ({ currentPage, setCurrentPage, onAddCli
                 );
             })}
         </nav>
-        <div className="p-4 border-t border-navy-700">
+        <div className={`p-4 border-t ${theme === 'neon' ? 'border-border-color' : 'border-dark-blue-border'}`}>
              <button
                 onClick={onAddClick}
-                className="w-full flex items-center justify-center space-x-2 bg-primary hover:bg-primary-hover text-white font-bold py-3 px-6 rounded-lg shadow-lg shadow-blue-500/20 transition-transform hover:scale-105"
+                className={`w-full flex items-center justify-center space-x-2 font-bold py-3 px-6 rounded-lg transition-all duration-300 ${
+                  theme === 'neon' 
+                  ? 'bg-neon-cyan hover:bg-neon-cyan/80 text-black shadow-[0_0_10px_hsla(var(--neon-cyan-hsl),0.7)] hover:shadow-[0_0_15px_hsla(var(--neon-cyan-hsl),0.9)]' 
+                  : 'bg-primary-blue hover:bg-primary-blue-hover text-white'
+                }`}
                 aria-label="Adicionar nova transação"
               >
                 <PlusIcon className="w-5 h-5" />

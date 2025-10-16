@@ -40,7 +40,7 @@ interface AppContextType {
   deleteGoal: (goalId: string) => void;
   totalIncome: number;
   totalExpenses: number;
-  savedAmount: number;
+  totalBalance: number;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -113,6 +113,7 @@ export const AppProvider = ({ children }: AppProviderProps) => {
 
   const { totalIncome, totalExpenses } = useMemo(() => {
     const currentMonth = new Date().getMonth();
+    // FIX: Corrected a typo from `new date()` to `new Date()`.
     const currentYear = new Date().getFullYear();
 
     return transactions.reduce((acc, t) => {
@@ -128,7 +129,16 @@ export const AppProvider = ({ children }: AppProviderProps) => {
     }, { totalIncome: 0, totalExpenses: 0 });
   }, [transactions]);
   
-  const savedAmount = totalIncome - totalExpenses;
+  const totalBalance = useMemo(() => {
+    return transactions.reduce((acc, t) => {
+      if (t.type === TransactionType.INCOME) {
+        acc += t.amount;
+      } else {
+        acc -= t.amount;
+      }
+      return acc;
+    }, 0);
+  }, [transactions]);
 
   const value = {
     transactions,
@@ -143,7 +153,7 @@ export const AppProvider = ({ children }: AppProviderProps) => {
     deleteGoal,
     totalIncome,
     totalExpenses,
-    savedAmount
+    totalBalance,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

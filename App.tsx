@@ -9,8 +9,10 @@ import ProfilePage from './components/ProfilePage';
 import AddTransactionModal from './components/modals/AddTransactionModal';
 import AddCategoryModal from './components/modals/AddCategoryModal';
 import { ArrowDownTrayIcon, XMarkIcon } from './components/icons';
+import { useTheme } from './context/ThemeContext';
 
 const App: React.FC = () => {
+    const { theme } = useTheme();
     const [currentPage, setCurrentPage] = useState<Page>('dashboard');
     const [isAddTransactionModalOpen, setAddTransactionModalOpen] = useState(false);
     const [isAddCategoryModalOpen, setAddCategoryModalOpen] = useState(false);
@@ -32,19 +34,19 @@ const App: React.FC = () => {
     useEffect(() => {
         const body = document.querySelector('body');
         if (body) {
+            body.className = theme === 'neon' ? 'bg-dark-bg' : 'bg-dark-blue-bg';
             if (currentPage === 'reports') {
                 body.classList.add('no-scrollbar');
             } else {
                 body.classList.remove('no-scrollbar');
             }
         }
-        // Cleanup on component unmount
         return () => {
             if (body) {
                 body.classList.remove('no-scrollbar');
             }
         }
-    }, [currentPage]);
+    }, [currentPage, theme]);
 
     const handleInstallClick = () => {
         if (!installPrompt) return;
@@ -89,7 +91,7 @@ const App: React.FC = () => {
     };
 
     return (
-        <div className="bg-navy-900 text-light-text min-h-screen font-sans">
+        <div className={`${theme === 'neon' ? 'bg-dark-bg' : 'bg-dark-blue-bg'} text-light-text min-h-screen font-sans`}>
             <SideNav currentPage={currentPage} setCurrentPage={setCurrentPage} onAddClick={handleAddTransactionClick} />
             <main className="md:ml-64 pb-20 md:pb-0">
                 {renderPage()}
@@ -108,14 +110,14 @@ const App: React.FC = () => {
 
             {installPrompt && (
                 <div className="fixed bottom-24 md:bottom-8 right-4 z-50 animate-fade-in-up">
-                    <div className="bg-navy-800 border border-navy-700 rounded-2xl shadow-lg p-4 flex items-center space-x-4 max-w-sm">
-                        <ArrowDownTrayIcon className="w-10 h-10 text-primary flex-shrink-0" />
+                    <div className={`rounded-2xl shadow-lg p-4 flex items-center space-x-4 max-w-sm ${theme === 'neon' ? 'bg-card-bg border border-border-color' : 'bg-dark-blue-card border border-dark-blue-border'}`}>
+                        <ArrowDownTrayIcon className={`w-10 h-10 flex-shrink-0 ${theme === 'neon' ? 'text-neon-cyan' : 'text-primary-blue'}`} />
                         <div className="flex-1">
                             <p className="font-semibold text-light-text">Instale o FinDash!</p>
                             <p className="text-sm text-medium-text">Adicione à sua tela inicial para acesso rápido e offline.</p>
                         </div>
                         <div className="flex flex-col space-y-2">
-                           <button onClick={handleInstallClick} className="px-3 py-1 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary-hover whitespace-nowrap">
+                           <button onClick={handleInstallClick} className={`px-3 py-1 text-sm font-bold rounded-lg whitespace-nowrap ${theme === 'neon' ? 'bg-neon-cyan text-black hover:bg-neon-cyan/80' : 'bg-primary-blue text-white hover:bg-primary-blue-hover'}`}>
                                 Instalar
                             </button>
                              <button onClick={() => setInstallPrompt(null)} className="px-3 py-1 text-sm font-medium text-medium-text hover:text-light-text whitespace-nowrap">

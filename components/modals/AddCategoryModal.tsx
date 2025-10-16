@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useAppContext } from '../../context/AppContext';
 import { TransactionType } from '../../types';
 import { XMarkIcon, ICON_MAP } from '../icons';
+import { useTheme } from '../../context/ThemeContext';
 
 interface AddCategoryModalProps {
   isOpen: boolean;
@@ -10,6 +11,7 @@ interface AddCategoryModalProps {
 
 const AddCategoryModal: React.FC<AddCategoryModalProps> = ({ isOpen, onClose }) => {
   const { addCategory } = useAppContext();
+  const { theme } = useTheme();
   const [name, setName] = useState('');
   const [type, setType] = useState<TransactionType>(TransactionType.EXPENSE);
   const [selectedIcon, setSelectedIcon] = useState('ShoppingCartIcon');
@@ -34,11 +36,18 @@ const AddCategoryModal: React.FC<AddCategoryModalProps> = ({ isOpen, onClose }) 
 
   if (!isOpen) return null;
 
+  const modalBg = theme === 'neon' ? 'bg-card-bg border-border-color' : 'bg-dark-blue-card border-dark-blue-border';
+  const inputBg = theme === 'neon' ? 'bg-dark-bg border-border-color focus:ring-neon-cyan focus:border-neon-cyan' : 'bg-dark-blue-bg border-dark-blue-border focus:ring-primary-blue focus:border-primary-blue';
+  const primaryButton = theme === 'neon' ? 'bg-neon-cyan text-black hover:bg-neon-cyan/80' : 'bg-primary-blue text-white hover:bg-primary-blue-hover';
+  const secondaryButton = theme === 'neon' ? 'bg-border-color hover:bg-border-color/80' : 'bg-dark-blue-border hover:bg-dark-blue-border/80';
+  const controlBg = theme === 'neon' ? 'bg-dark-bg' : 'bg-dark-blue-bg';
+  const hoverColor = theme === 'neon' ? 'hover:bg-border-color' : 'hover:bg-dark-blue-border';
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 transition-opacity duration-300"
          onClick={onClose}
     >
-      <div className={`bg-navy-800 rounded-2xl p-6 w-full max-w-md m-4 border border-navy-700 shadow-2xl transition-transform duration-300 transform scale-95 ${isOpen && '!scale-100'}`}
+      <div className={`rounded-2xl p-6 w-full max-w-md m-4 border shadow-2xl transition-transform duration-300 transform scale-95 ${isOpen && '!scale-100'} ${modalBg}`}
            onClick={e => e.stopPropagation()}
       >
         <div className="flex justify-between items-center mb-6">
@@ -51,16 +60,16 @@ const AddCategoryModal: React.FC<AddCategoryModalProps> = ({ isOpen, onClose }) 
         <form onSubmit={handleSubmit} className="space-y-4">
             <div>
                 <label htmlFor="name" className="block text-sm font-medium text-medium-text mb-1">Nome</label>
-                <input type="text" id="name" value={name} onChange={(e) => setName(e.target.value)} className="mt-1 block w-full bg-navy-900 border border-navy-700 rounded-lg shadow-sm py-2 px-3 text-light-text focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary" required />
+                <input type="text" id="name" value={name} onChange={(e) => setName(e.target.value)} className={`mt-1 block w-full border rounded-lg shadow-sm py-2 px-3 text-light-text focus:outline-none focus:ring-2 ${inputBg}`} required />
             </div>
 
             <div>
                 <label className="block text-sm font-medium text-medium-text mb-1">Tipo</label>
-                <div className="grid grid-cols-2 gap-2 bg-navy-900 p-1 rounded-lg">
-                    <button type="button" onClick={() => setType(TransactionType.EXPENSE)} className={`py-2 rounded-md font-semibold text-sm transition-colors ${type === TransactionType.EXPENSE ? 'bg-expense text-white' : 'text-medium-text hover:bg-navy-700'}`}>
+                <div className={`grid grid-cols-2 gap-2 p-1 rounded-lg ${controlBg}`}>
+                    <button type="button" onClick={() => setType(TransactionType.EXPENSE)} className={`py-2 rounded-md font-semibold text-sm transition-colors ${type === TransactionType.EXPENSE ? (theme === 'neon' ? 'bg-neon-pink text-white' : 'bg-expense-red text-white') : `text-medium-text ${hoverColor}`}`}>
                         Despesa
                     </button>
-                    <button type="button" onClick={() => setType(TransactionType.INCOME)} className={`py-2 rounded-md font-semibold text-sm transition-colors ${type === TransactionType.INCOME ? 'bg-income text-white' : 'text-medium-text hover:bg-navy-700'}`}>
+                    <button type="button" onClick={() => setType(TransactionType.INCOME)} className={`py-2 rounded-md font-semibold text-sm transition-colors ${type === TransactionType.INCOME ? (theme === 'neon' ? 'bg-neon-green text-black' : 'bg-income-green text-white') : `text-medium-text ${hoverColor}`}`}>
                         Receita
                     </button>
                 </div>
@@ -68,7 +77,7 @@ const AddCategoryModal: React.FC<AddCategoryModalProps> = ({ isOpen, onClose }) 
 
             <div>
                 <label className="block text-sm font-medium text-medium-text mb-1">Ícone</label>
-                <div className="grid grid-cols-6 sm:grid-cols-8 gap-2 bg-navy-900 p-2 rounded-lg max-h-32 overflow-y-auto">
+                <div className={`grid grid-cols-6 sm:grid-cols-8 gap-2 p-2 rounded-lg max-h-32 overflow-y-auto ${controlBg}`}>
                     {iconList.map(iconKey => {
                         const IconComponent = ICON_MAP[iconKey];
                         const isActive = selectedIcon === iconKey;
@@ -77,7 +86,7 @@ const AddCategoryModal: React.FC<AddCategoryModalProps> = ({ isOpen, onClose }) 
                                 type="button"
                                 key={iconKey}
                                 onClick={() => setSelectedIcon(iconKey)}
-                                className={`flex items-center justify-center p-2 rounded-lg transition-colors ${isActive ? 'bg-primary text-white' : 'bg-navy-800 text-medium-text hover:bg-navy-700'}`}
+                                className={`flex items-center justify-center p-2 rounded-lg transition-colors ${isActive ? (theme === 'neon' ? 'bg-neon-cyan text-black' : 'bg-primary-blue text-white') : `${theme === 'neon' ? 'bg-card-bg' : 'bg-dark-blue-card'} text-medium-text ${hoverColor}`}`}
                             >
                                 <IconComponent className="w-6 h-6" />
                             </button>
@@ -87,10 +96,10 @@ const AddCategoryModal: React.FC<AddCategoryModalProps> = ({ isOpen, onClose }) 
             </div>
             
             <div className="flex justify-end space-x-3 pt-4">
-                <button type="button" onClick={onClose} className="px-4 py-2 text-sm font-medium text-light-text bg-navy-700 rounded-lg hover:bg-navy-700/80">
+                <button type="button" onClick={onClose} className={`px-4 py-2 text-sm font-medium text-light-text rounded-lg ${secondaryButton}`}>
                 Cancelar
                 </button>
-                <button type="submit" className="px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary-hover">
+                <button type="submit" className={`px-4 py-2 text-sm font-medium rounded-lg ${primaryButton}`}>
                 Salvar Categoria
                 </button>
             </div>

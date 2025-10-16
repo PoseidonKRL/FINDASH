@@ -5,15 +5,17 @@ import { Transaction, TransactionType } from '../types';
 import { PencilIcon, TrashIcon, ChevronRightIcon, ChevronDownIcon, ChevronLeftIcon, getIcon, DocumentDuplicateIcon } from './icons';
 import ConfirmationModal from './modals/ConfirmationModal';
 import DuplicateTransactionModal from './modals/DuplicateTransactionModal';
+import { useTheme } from '../context/ThemeContext';
 
 const formatCurrency = (value: number) => {
     return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 };
 
 const CustomTooltip = ({ active, payload, label }: any) => {
+  const { theme } = useTheme();
   if (active && payload && payload.length) {
     return (
-      <div className="bg-navy-900 p-4 border border-navy-700 rounded-lg shadow-lg">
+      <div className={`p-4 rounded-lg shadow-lg ${theme === 'neon' ? 'bg-dark-bg border border-border-color' : 'bg-dark-blue-bg border border-dark-blue-border'}`}>
         <p className="label text-base font-semibold text-light-text mb-2">{`${label}`}</p>
         {payload.map((pld: any) => (
             <div key={pld.dataKey} style={{ color: pld.color }} className="flex items-center space-x-2">
@@ -35,6 +37,7 @@ interface ReportsPageProps {
 
 const ReportsPage: React.FC<ReportsPageProps> = ({ onEditTransaction }) => {
     const { transactions, categories, deleteTransaction } = useAppContext();
+    const { theme } = useTheme();
     const [filter, setFilter] = useState<'all' | 'income' | 'expense'>('all');
     const [isConfirmModalOpen, setConfirmModalOpen] = useState(false);
     const [transactionToDelete, setTransactionToDelete] = useState<string | null>(null);
@@ -127,6 +130,12 @@ const ReportsPage: React.FC<ReportsPageProps> = ({ onEditTransaction }) => {
         setDuplicateModalOpen(true);
     };
 
+    const chartColors = {
+        income: theme === 'neon' ? 'hsl(var(--neon-green-hsl))' : '#22C55E',
+        expense: theme === 'neon' ? 'hsl(var(--neon-pink-hsl))' : '#EF4444',
+        grid: theme === 'neon' ? '#2a2a45' : '#334155'
+    };
+
     return (
         <div className="p-4 md:p-8 space-y-6">
             <header className="py-4">
@@ -134,55 +143,55 @@ const ReportsPage: React.FC<ReportsPageProps> = ({ onEditTransaction }) => {
             </header>
             
             <div className="space-y-6 md:grid md:grid-cols-5 md:gap-6 md:space-y-0">
-                <div className="md:col-span-5 bg-navy-800 p-4 sm:p-6 rounded-2xl border border-navy-700">
+                <div className={`md:col-span-5 p-4 sm:p-6 rounded-2xl border ${theme === 'neon' ? 'bg-card-bg border-border-color' : 'bg-dark-blue-card border-dark-blue-border'}`}>
                     <div className="h-80 w-full">
                         <ResponsiveContainer>
                             <AreaChart data={chartData} margin={{ top: 5, right: 10, left: -10, bottom: 20 }}>
                                 <defs>
                                     <linearGradient id="colorIncome" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="#10B981" stopOpacity={0.4}/>
-                                        <stop offset="95%" stopColor="#10B981" stopOpacity={0}/>
+                                        <stop offset="5%" stopColor={chartColors.income} stopOpacity={0.4}/>
+                                        <stop offset="95%" stopColor={chartColors.income} stopOpacity={0}/>
                                     </linearGradient>
                                     <linearGradient id="colorExpense" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="#EF4444" stopOpacity={0.4}/>
-                                        <stop offset="95%" stopColor="#EF4444" stopOpacity={0}/>
+                                        <stop offset="5%" stopColor={chartColors.expense} stopOpacity={0.4}/>
+                                        <stop offset="95%" stopColor={chartColors.expense} stopOpacity={0}/>
                                     </linearGradient>
                                 </defs>
-                                <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
-                                <XAxis dataKey="month" stroke="#94A3B8" dy={10} style={{ fontSize: '0.8rem' }}>
-                                  <Label value="Mês" position="insideBottom" offset={-10} style={{ textAnchor: 'middle', fill: '#94A3B8', fontSize: '0.9rem' }} />
+                                <CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} />
+                                <XAxis dataKey="month" stroke="#a0a0b0" dy={10} style={{ fontSize: '0.8rem' }}>
+                                  <Label value="Mês" position="insideBottom" offset={-10} style={{ textAnchor: 'middle', fill: '#a0a0b0', fontSize: '0.9rem' }} />
                                 </XAxis>
-                                <YAxis stroke="#94A3B8" tickFormatter={(value) => `${(Number(value)/1000)}k`} dx={-5} style={{ fontSize: '0.8rem' }}>
-                                  <Label value="Valor (R$)" angle={-90} position="insideLeft" offset={10} style={{ textAnchor: 'middle', fill: '#94A3B8', fontSize: '0.9rem' }} />
+                                <YAxis stroke="#a0a0b0" tickFormatter={(value) => `${(Number(value)/1000)}k`} dx={-5} style={{ fontSize: '0.8rem' }}>
+                                  <Label value="Valor (R$)" angle={-90} position="insideLeft" offset={10} style={{ textAnchor: 'middle', fill: '#a0a0b0', fontSize: '0.9rem' }} />
                                 </YAxis>
-                                <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(148, 163, 184, 0.1)' }}/>
+                                <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(160, 160, 176, 0.1)' }}/>
                                 <Legend wrapperStyle={{ paddingTop: '20px' }} />
                                 
-                                <ReferenceArea x1={currentMonthLabel} x2={currentMonthLabel} stroke="none" fill="#94A3B8" fillOpacity={0.1} />
+                                <ReferenceArea x1={currentMonthLabel} x2={currentMonthLabel} stroke="none" fill="#a0a0b0" fillOpacity={0.1} />
                                 
-                                {filter !== 'expense' && <Area type="monotone" dataKey="Receitas" stroke="#10B981" fillOpacity={1} fill="url(#colorIncome)" strokeWidth={2.5} />}
-                                {filter !== 'income' && <Area type="monotone" dataKey="Despesas" stroke="#EF4444" fillOpacity={1} fill="url(#colorExpense)" strokeWidth={2.5} />}
+                                {filter !== 'expense' && <Area type="monotone" dataKey="Receitas" stroke={chartColors.income} fillOpacity={1} fill="url(#colorIncome)" strokeWidth={2.5} />}
+                                {filter !== 'income' && <Area type="monotone" dataKey="Despesas" stroke={chartColors.expense} fillOpacity={1} fill="url(#colorExpense)" strokeWidth={2.5} />}
                             </AreaChart>
                         </ResponsiveContainer>
                     </div>
                 </div>
 
                 <div className="md:col-span-5 space-y-4">
-                     <div className="flex justify-between items-center bg-navy-800 p-2 rounded-xl border border-navy-700">
-                        <button onClick={handlePreviousMonth} className="p-2 rounded-full hover:bg-navy-700 transition-colors">
+                     <div className={`flex justify-between items-center p-2 rounded-xl border ${theme === 'neon' ? 'bg-card-bg border-border-color' : 'bg-dark-blue-card border-dark-blue-border'}`}>
+                        <button onClick={handlePreviousMonth} className={`p-2 rounded-full transition-colors ${theme === 'neon' ? 'hover:bg-border-color' : 'hover:bg-dark-blue-border'}`}>
                             <ChevronLeftIcon className="w-5 h-5 text-medium-text" />
                         </button>
                         <h3 className="font-semibold text-lg text-light-text capitalize">
                             {selectedDate.toLocaleString('pt-BR', { month: 'long', year: 'numeric' })}
                         </h3>
-                        <button onClick={handleNextMonth} className="p-2 rounded-full hover:bg-navy-700 transition-colors">
+                        <button onClick={handleNextMonth} className={`p-2 rounded-full transition-colors ${theme === 'neon' ? 'hover:bg-border-color' : 'hover:bg-dark-blue-border'}`}>
                             <ChevronRightIcon className="w-5 h-5 text-medium-text" />
                         </button>
                     </div>
-                    <div className="flex justify-center md:justify-start space-x-2 bg-navy-800 p-2 rounded-xl border border-navy-700 self-start">
-                        <button onClick={() => setFilter('all')} className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors ${filter === 'all' ? 'bg-primary text-white' : 'text-medium-text hover:bg-navy-700'}`}>Todos</button>
-                        <button onClick={() => setFilter('income')} className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors ${filter === 'income' ? 'bg-income text-white' : 'text-medium-text hover:bg-navy-700'}`}>Receitas</button>
-                        <button onClick={() => setFilter('expense')} className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors ${filter === 'expense' ? 'bg-expense text-white' : 'text-medium-text hover:bg-navy-700'}`}>Despesas</button>
+                    <div className={`flex justify-center md:justify-start space-x-2 p-2 rounded-xl border self-start ${theme === 'neon' ? 'bg-card-bg border-border-color' : 'bg-dark-blue-card border-dark-blue-border'}`}>
+                        <button onClick={() => setFilter('all')} className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors ${filter === 'all' ? (theme === 'neon' ? 'bg-neon-cyan text-black' : 'bg-primary-blue text-white') : `text-medium-text ${theme === 'neon' ? 'hover:bg-border-color' : 'hover:bg-dark-blue-border'}`}`}>Todos</button>
+                        <button onClick={() => setFilter('income')} className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors ${filter === 'income' ? (theme === 'neon' ? 'bg-neon-green text-black' : 'bg-income-green text-white') : `text-medium-text ${theme === 'neon' ? 'hover:bg-border-color' : 'hover:bg-dark-blue-border'}`}`}>Receitas</button>
+                        <button onClick={() => setFilter('expense')} className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors ${filter === 'expense' ? (theme === 'neon' ? 'bg-neon-pink text-white' : 'bg-expense-red text-white') : `text-medium-text ${theme === 'neon' ? 'hover:bg-border-color' : 'hover:bg-dark-blue-border'}`}`}>Despesas</button>
                     </div>
                     <div className="space-y-3 max-h-[60vh] md:max-h-[26rem] overflow-y-auto pr-2 no-scrollbar">
                         {filteredTransactions.length > 0 ? filteredTransactions.map(t => {
@@ -192,11 +201,14 @@ const ReportsPage: React.FC<ReportsPageProps> = ({ onEditTransaction }) => {
                             const isExpanded = expandedRows.has(t.id);
                             const IconComponent = category ? getIcon(category.icon) : getIcon('default');
 
+                            const incomeColor = theme === 'neon' ? 'text-neon-green' : 'text-income-green';
+                            const expenseColor = theme === 'neon' ? 'text-neon-pink' : 'text-expense-red';
+
                             return (
-                                <div key={t.id} className="bg-navy-800 rounded-xl border border-navy-700 p-4">
+                                <div key={t.id} className={`rounded-xl border p-4 ${theme === 'neon' ? 'bg-card-bg border-border-color' : 'bg-dark-blue-card border-dark-blue-border'}`}>
                                     <div className="flex items-start space-x-3">
-                                        <div className="p-3 bg-navy-900 rounded-full flex-shrink-0">
-                                            {category && <IconComponent className={`w-5 h-5 ${isIncome ? 'text-income' : 'text-expense'}`} />}
+                                        <div className={`p-3 rounded-full flex-shrink-0 border border-transparent ${theme === 'neon' ? (isIncome ? 'shadow-[0_0_8px_hsla(var(--neon-green-hsl),0.5)] bg-dark-bg' : 'shadow-[0_0_8px_hsla(var(--neon-pink-hsl),0.5)] bg-dark-bg') : (isIncome ? 'bg-income-green/10' : 'bg-expense-red/10')}`}>
+                                            {category && <IconComponent className={`w-5 h-5 ${isIncome ? incomeColor : expenseColor}`} />}
                                         </div>
                                         <div className="flex-1 min-w-0">
                                             <div className="flex justify-between items-start">
@@ -217,22 +229,22 @@ const ReportsPage: React.FC<ReportsPageProps> = ({ onEditTransaction }) => {
                                                 </div>
                                             </div>
                                             <div className="flex justify-between items-center mt-2">
-                                                <p className={`font-bold text-base ${isIncome ? 'text-income' : 'text-expense'}`}>
+                                                <p className={`font-bold text-base ${isIncome ? incomeColor : expenseColor}`}>
                                                     {isIncome ? '+' : '-'} {formatCurrency(t.amount)}
                                                 </p>
                                                 <div className="flex space-x-1">
-                                                    <button onClick={() => handleOpenDuplicateModal(t)} className="p-1 text-medium-text hover:text-primary"><DocumentDuplicateIcon className="w-4 h-4" /></button>
-                                                    <button onClick={() => onEditTransaction(t)} className="p-1 text-medium-text hover:text-primary"><PencilIcon className="w-4 h-4" /></button>
-                                                    <button onClick={() => handleOpenDeleteConfirm(t.id)} className="p-1 text-medium-text hover:text-expense"><TrashIcon className="w-4 h-4" /></button>
+                                                    <button onClick={() => handleOpenDuplicateModal(t)} className={`p-1 text-medium-text ${theme === 'neon' ? 'hover:text-neon-cyan' : 'hover:text-primary-blue'}`}><DocumentDuplicateIcon className="w-4 h-4" /></button>
+                                                    <button onClick={() => onEditTransaction(t)} className={`p-1 text-medium-text ${theme === 'neon' ? 'hover:text-neon-cyan' : 'hover:text-primary-blue'}`}><PencilIcon className="w-4 h-4" /></button>
+                                                    <button onClick={() => handleOpenDeleteConfirm(t.id)} className={`p-1 text-medium-text ${theme === 'neon' ? 'hover:text-neon-pink' : 'hover:text-expense-red'}`}><TrashIcon className="w-4 h-4" /></button>
                                                 </div>
                                             </div>
                                              {isExpanded && (hasSubItems || t.notes) && (
-                                                <div className="border-t border-navy-700 pt-3 mt-3 space-y-2">
+                                                <div className={`pt-3 mt-3 space-y-2 ${theme === 'neon' ? 'border-t border-border-color' : 'border-t border-dark-blue-border'}`}>
                                                      {t.notes && <p className="text-sm text-medium-text italic mb-2 break-words">Nota: {t.notes}</p>}
                                                     {t.subItems?.map(item => (
                                                         <div key={item.id} className="flex justify-between items-start text-sm gap-4">
                                                             <p className="text-medium-text break-words flex-1 min-w-0">{item.description}</p>
-                                                            <p className={`font-medium whitespace-nowrap ${isIncome ? 'text-income/90' : 'text-expense/90'}`}>{isIncome ? '+' : '-'} {formatCurrency(item.amount)}</p>
+                                                            <p className={`font-medium whitespace-nowrap ${isIncome ? `${incomeColor}/90` : `${expenseColor}/90`}`}>{isIncome ? '+' : '-'} {formatCurrency(item.amount)}</p>
                                                         </div>
                                                     ))}
                                                 </div>
@@ -242,7 +254,7 @@ const ReportsPage: React.FC<ReportsPageProps> = ({ onEditTransaction }) => {
                                 </div>
                             );
                         }) : (
-                            <div className="text-center py-16 bg-navy-800 rounded-2xl border border-navy-700">
+                            <div className={`text-center py-16 rounded-2xl border ${theme === 'neon' ? 'bg-card-bg border-border-color' : 'bg-dark-blue-card border-dark-blue-border'}`}>
                                 <p className="text-medium-text">Nenhuma transação encontrada para este período.</p>
                             </div>
                         )}

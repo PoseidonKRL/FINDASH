@@ -8,7 +8,7 @@
     
     <!-- PWA Manifest and Theme Color -->
     <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#0F172A">
+    <meta name="theme-color" content="#0a0a14">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -22,21 +22,62 @@
               sans: ['Inter', 'sans-serif'],
             },
             colors: {
-              'navy-900': '#0F172A', // Main BG
-              'navy-800': '#1E293B', // Cards
-              'navy-700': '#334155', // Borders, hover
-              'primary': '#3B82F6',
-              'primary-hover': '#2563EB',
-              'income': '#10B981',
-              'expense': '#EF4444',
-              'light-text': '#F1F5F9',
-              'medium-text': '#94A3B8',
+              // Neon Theme Colors
+              'dark-bg': '#0a0a14',
+              'card-bg': '#141428',
+              'border-color': '#2a2a45',
+              'neon-cyan': 'hsl(180, 100%, 50%)',
+              'neon-green': 'hsl(105, 100%, 50%)',
+              'neon-pink': 'hsl(300, 100%, 50%)',
+              'neon-red': 'hsl(0, 100%, 50%)',
+
+              // Original Dark Theme Colors
+              'dark-blue-bg': '#0F172A',
+              'dark-blue-card': '#1E293B',
+              'dark-blue-border': '#334155',
+              'primary-blue': '#3B82F6',
+              'primary-blue-hover': '#2563EB',
+              'income-green': '#22C55E',
+              'expense-red': '#EF4444',
+              
+              // Common Text Colors
+              'light-text': '#f0f0f5',
+              'medium-text': '#a0a0b0',
             }
           }
         }
       }
     </script>
     <style>
+      :root {
+        --neon-cyan-hsl: 180, 100%, 50%;
+        --neon-green-hsl: 105, 100%, 50%;
+        --neon-pink-hsl: 300, 100%, 50%;
+        --neon-red-hsl: 0, 100%, 50%;
+      }
+
+      /* ===== Smooth Theme Transition ===== */
+      body, body *, body::before, body::after,
+      body *::before, body *::after {
+        transition-property: color, background-color, border-color, text-shadow, box-shadow, stroke, fill;
+        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+        transition-duration: 300ms;
+      }
+      /* =================================== */
+
+      .theme-neon .text-glow-cyan {
+        text-shadow: 0 0 5px hsla(var(--neon-cyan-hsl), 0.7), 0 0 10px hsla(var(--neon-cyan-hsl), 0.5);
+      }
+      .theme-neon .text-glow-green {
+        text-shadow: 0 0 5px hsla(var(--neon-green-hsl), 0.7), 0 0 10px hsla(var(--neon-green-hsl), 0.5);
+      }
+      .theme-neon .text-glow-pink {
+        text-shadow: 0 0 5px hsla(var(--neon-pink-hsl), 0.7), 0 0 10px hsla(var(--neon-pink-hsl), 0.5);
+      }
+       .theme-neon .text-glow-red {
+        text-shadow: 0 0 5px hsla(var(--neon-red-hsl), 0.7), 0 0 10px hsla(var(--neon-red-hsl), 0.5);
+      }
+
       /* Hide scrollbar for Chrome, Safari and Opera */
       @media (max-width: 768px) {
         .no-scrollbar::-webkit-scrollbar {
@@ -60,7 +101,7 @@
 }
 </script>
 </head>
-  <body class="bg-navy-900">
+  <body class="bg-dark-blue-bg">
     <div id="root"></div>
     <script type="module" src="./index.tsx"></script>
 
