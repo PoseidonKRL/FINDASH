@@ -64,7 +64,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ onAddCategoryClick }) => {
         dark: 'bg-dark-blue-bg hover:bg-dark-blue-border',
         neon: 'bg-dark-bg hover:bg-border-color',
         minimal: 'bg-gray-100 hover:bg-gray-200 text-minimal-text',
-        brutalist: 'bg-white hover:bg-yellow-100 text-brutalist-text brutalist-card',
+        brutalist: 'bg-white hover:bg-gray-200 text-brutalist-text brutalist-card',
         glass: 'bg-white/5 hover:bg-white/10 text-light-text',
         cyberpunk: 'bg-cyber-bg hover:bg-cyber-border text-light-text'
     };

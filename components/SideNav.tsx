@@ -48,7 +48,7 @@ const SideNav: React.FC<SideNavProps> = ({ currentPage, setCurrentPage, onAddCli
       header: 'border-b-2 border-brutalist-border',
       logo: 'text-brutalist-text',
       active: 'bg-brutalist-accent/20 text-brutalist-accent brutalist-button',
-      inactive: 'text-brutalist-text hover:bg-yellow-200',
+      inactive: 'text-brutalist-text hover:bg-gray-200',
       button: 'brutalist-button bg-brutalist-accent hover:bg-pink-500 text-white'
     },
     glass: {

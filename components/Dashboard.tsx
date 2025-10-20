@@ -80,7 +80,7 @@ const Dashboard: React.FC<DashboardProps> = ({ navigateTo }) => {
         },
         brutalist: {
             dateNav: 'brutalist-card',
-            dateButtonHover: 'hover:bg-yellow-200',
+            dateButtonHover: 'hover:bg-gray-200',
             incomeCard: `brutalist-card bg-minimal-income/20`,
             expenseCard: `brutalist-card bg-minimal-expense/20`,
             balanceCard: `brutalist-card`,

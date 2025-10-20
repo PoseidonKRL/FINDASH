@@ -183,7 +183,7 @@ const ReportsPage: React.FC<ReportsPageProps> = ({ onEditTransaction }) => {
         },
         brutalist: {
             card: 'brutalist-card',
-            hover: 'hover:bg-yellow-200',
+            hover: 'hover:bg-gray-200',
             incomeColor: 'text-brutalist-income',
             expenseColor: 'text-brutalist-expense',
             accentColor: 'text-brutalist-accent',

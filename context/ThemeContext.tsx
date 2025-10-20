@@ -36,7 +36,7 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
             dark: '#0F172A',
             neon: '#0a0a14',
             minimal: '#FFFFFF',
-            brutalist: '#FDE047',
+            brutalist: '#F3F4F6',
             glass: '#05040f',
             cyberpunk: '#0D0221',
         }[theme];
