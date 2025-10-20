@@ -32,21 +32,16 @@ const App: React.FC = () => {
     }, []);
 
     useEffect(() => {
-        const body = document.querySelector('body');
-        if (body) {
-            body.className = theme === 'neon' ? 'bg-dark-bg' : 'bg-dark-blue-bg';
-            if (currentPage === 'reports') {
-                body.classList.add('no-scrollbar');
-            } else {
-                body.classList.remove('no-scrollbar');
-            }
+        const body = document.body;
+        if (currentPage === 'reports') {
+            body.classList.add('no-scrollbar');
+        } else {
+            body.classList.remove('no-scrollbar');
         }
         return () => {
-            if (body) {
-                body.classList.remove('no-scrollbar');
-            }
+            body.classList.remove('no-scrollbar');
         }
-    }, [currentPage, theme]);
+    }, [currentPage]);
 
     const handleInstallClick = () => {
         if (!installPrompt) return;
@@ -90,8 +85,38 @@ const App: React.FC = () => {
         }
     };
 
+    const textClass = (theme === 'minimal' || theme === 'brutalist') ? 'text-minimal-text' : 'text-light-text';
+    const fontClass = theme === 'brutalist' ? 'font-mono' : 'font-sans';
+    
+    const pwaCardClasses = {
+        dark: 'bg-dark-blue-card border border-dark-blue-border',
+        neon: 'bg-card-bg border border-border-color',
+        minimal: 'bg-minimal-card border border-minimal-border',
+        brutalist: 'brutalist-card',
+        glass: 'bg-white/10 border border-white/20 backdrop-blur-md',
+        cyberpunk: 'bg-cyber-card border border-cyber-border',
+    }[theme];
+
+    const pwaIconClasses = {
+        dark: 'text-primary-blue',
+        neon: 'text-neon-cyan',
+        minimal: 'text-minimal-accent',
+        brutalist: 'text-brutalist-text',
+        glass: 'text-glass-accent',
+        cyberpunk: 'text-cyber-accent',
+    }[theme];
+    
+    const pwaButtonClasses = {
+        dark: 'bg-primary-blue text-white hover:bg-primary-blue-hover',
+        neon: 'bg-neon-cyan text-black hover:bg-neon-cyan/80',
+        minimal: 'bg-minimal-accent text-white',
+        brutalist: 'brutalist-button bg-brutalist-accent text-white',
+        glass: 'bg-glass-accent text-black',
+        cyberpunk: 'bg-cyber-accent text-black',
+    }[theme];
+
     return (
-        <div className={`${theme === 'neon' ? 'bg-dark-bg' : 'bg-dark-blue-bg'} text-light-text min-h-screen font-sans`}>
+        <div className={`${textClass} ${fontClass} min-h-screen`}>
             <SideNav currentPage={currentPage} setCurrentPage={setCurrentPage} onAddClick={handleAddTransactionClick} />
             <main className="md:ml-64 pb-20 md:pb-0">
                 {renderPage()}
@@ -110,17 +135,17 @@ const App: React.FC = () => {
 
             {installPrompt && (
                 <div className="fixed bottom-24 md:bottom-8 right-4 z-50 animate-fade-in-up">
-                    <div className={`rounded-2xl shadow-lg p-4 flex items-center space-x-4 max-w-sm ${theme === 'neon' ? 'bg-card-bg border border-border-color' : 'bg-dark-blue-card border border-dark-blue-border'}`}>
-                        <ArrowDownTrayIcon className={`w-10 h-10 flex-shrink-0 ${theme === 'neon' ? 'text-neon-cyan' : 'text-primary-blue'}`} />
+                    <div className={`rounded-2xl shadow-lg p-4 flex items-center space-x-4 max-w-sm ${pwaCardClasses}`}>
+                        <ArrowDownTrayIcon className={`w-10 h-10 flex-shrink-0 ${pwaIconClasses}`} />
                         <div className="flex-1">
-                            <p className="font-semibold text-light-text">Instale o FinDash!</p>
-                            <p className="text-sm text-medium-text">Adicione à sua tela inicial para acesso rápido e offline.</p>
+                            <p className={`font-semibold ${textClass}`}>Instale o FinDash!</p>
+                            <p className={`text-sm ${(theme === 'minimal' || theme === 'brutalist') ? 'text-minimal-medium-text' : 'text-medium-text'}`}>Adicione à sua tela inicial para acesso rápido e offline.</p>
                         </div>
                         <div className="flex flex-col space-y-2">
-                           <button onClick={handleInstallClick} className={`px-3 py-1 text-sm font-bold rounded-lg whitespace-nowrap ${theme === 'neon' ? 'bg-neon-cyan text-black hover:bg-neon-cyan/80' : 'bg-primary-blue text-white hover:bg-primary-blue-hover'}`}>
+                           <button onClick={handleInstallClick} className={`px-3 py-1 text-sm font-bold rounded-lg whitespace-nowrap ${pwaButtonClasses}`}>
                                 Instalar
                             </button>
-                             <button onClick={() => setInstallPrompt(null)} className="px-3 py-1 text-sm font-medium text-medium-text hover:text-light-text whitespace-nowrap">
+                             <button onClick={() => setInstallPrompt(null)} className={`px-3 py-1 text-sm font-medium  whitespace-nowrap ${(theme === 'minimal' || theme === 'brutalist') ? 'text-minimal-medium-text hover:text-minimal-text' : 'text-medium-text hover:text-light-text'}`}>
                                 Agora não
                             </button>
                         </div>

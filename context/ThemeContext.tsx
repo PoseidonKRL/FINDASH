@@ -1,6 +1,6 @@
 import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
 
-type Theme = 'dark' | 'neon';
+export type Theme = 'dark' | 'neon' | 'minimal' | 'brutalist' | 'glass' | 'cyberpunk';
 
 interface ThemeContextType {
   theme: Theme;
@@ -21,10 +21,28 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     const root = window.document.documentElement;
-    const oldTheme = theme === 'dark' ? 'neon' : 'dark';
-    root.classList.remove(`theme-${oldTheme}`);
+    
+    // Remove all possible theme classes
+    root.classList.remove('theme-dark', 'theme-neon', 'theme-minimal', 'theme-brutalist', 'theme-glass', 'theme-cyberpunk');
+    
+    // Add the current one
     root.classList.add(`theme-${theme}`);
     localStorage.setItem('findash_theme', theme);
+    
+    // Update meta theme-color for PWA/mobile browser consistency
+    const themeColorMeta = document.querySelector('meta[name="theme-color"]');
+    if (themeColorMeta) {
+        const color = {
+            dark: '#0F172A',
+            neon: '#0a0a14',
+            minimal: '#FFFFFF',
+            brutalist: '#FDE047',
+            glass: '#05040f',
+            cyberpunk: '#0D0221',
+        }[theme];
+        themeColorMeta.setAttribute('content', color);
+    }
+
   }, [theme]);
 
   const setTheme = (newTheme: Theme) => {

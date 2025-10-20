@@ -20,13 +20,45 @@ const BottomNav: React.FC<BottomNavProps> = ({ currentPage, setCurrentPage, onAd
     { page: 'profile' as Page, icon: UserIcon },
   ];
 
-  const bgColor = theme === 'neon' ? 'bg-card-bg/80 border-border-color' : 'bg-dark-blue-card/80 border-dark-blue-border';
-  const ringColor = theme === 'neon' ? 'ring-dark-bg' : 'ring-dark-blue-bg';
-  const activeColor = theme === 'neon' ? 'text-neon-cyan' : 'text-primary-blue';
+  const bgColor = {
+    dark: 'bg-dark-blue-card/80 border-dark-blue-border',
+    neon: 'bg-card-bg/80 border-border-color',
+    minimal: 'bg-minimal-card/80 border-minimal-border',
+    brutalist: 'brutalist-card bg-white',
+    glass: 'bg-black/20 border-white/20 backdrop-blur-lg',
+    cyberpunk: 'bg-cyber-card/80 border-cyber-border'
+  }[theme];
+
+  const ringColor = {
+    dark: 'ring-dark-blue-bg',
+    neon: 'ring-dark-bg',
+    minimal: 'ring-minimal-bg',
+    brutalist: 'ring-brutalist-bg',
+    glass: 'ring-[#05040f]', // glass-bg
+    cyberpunk: 'ring-cyber-bg'
+  }[theme];
   
-  const addButtonClasses = theme === 'neon' 
-    ? "bg-neon-cyan text-black shadow-[0_0_15px_hsl(var(--neon-cyan-hsl))] hover:shadow-[0_0_25px_hsl(var(--neon-cyan-hsl))]"
-    : "bg-primary-blue text-white shadow-lg";
+  const activeColor = {
+    dark: 'text-primary-blue',
+    neon: 'text-neon-cyan',
+    minimal: 'text-minimal-accent',
+    brutalist: 'text-brutalist-text font-bold',
+    glass: 'text-glass-accent',
+    cyberpunk: 'text-cyber-accent'
+  }[theme];
+
+  const inactiveColor = (theme === 'minimal' || theme === 'brutalist') 
+    ? 'text-minimal-medium-text hover:text-minimal-text'
+    : 'text-medium-text hover:text-light-text';
+
+  const addButtonClasses = {
+    dark: "bg-primary-blue text-white shadow-lg",
+    neon: "bg-neon-cyan text-black shadow-[0_0_15px_hsl(var(--neon-cyan-hsl))] hover:shadow-[0_0_25px_hsl(var(--neon-cyan-hsl))]",
+    minimal: "bg-minimal-accent text-white shadow-lg",
+    brutalist: "brutalist-button bg-brutalist-accent text-white",
+    glass: "bg-glass-accent text-black shadow-lg",
+    cyberpunk: "bg-cyber-accent text-black shadow-[0_0_15px_#F0F] hover:shadow-[0_0_25px_#F0F]",
+  }[theme];
 
   return (
     <div className={`fixed bottom-0 left-0 right-0 max-w-md mx-auto backdrop-blur-lg border-t md:hidden ${bgColor}`}>
@@ -51,7 +83,7 @@ const BottomNav: React.FC<BottomNavProps> = ({ currentPage, setCurrentPage, onAd
               key={index}
               onClick={() => setCurrentPage(item.page)}
               className={`flex flex-col items-center justify-center p-2 rounded-lg transition-colors duration-200 w-16 ${
-                isActive ? activeColor : 'text-medium-text hover:text-light-text'
+                isActive ? activeColor : inactiveColor
               }`}
               aria-label={`Ir para ${item.page}`}
               aria-current={isActive ? 'page' : undefined}

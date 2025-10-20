@@ -46,11 +46,49 @@ const DuplicateTransactionModal: React.FC<DuplicateTransactionModalProps> = ({ i
   };
 
   if (!isOpen || !transactionToDuplicate) return null;
+  
+  const styles = {
+    dark: {
+        modalBg: 'bg-dark-blue-card border-dark-blue-border',
+        inputBg: 'bg-dark-blue-bg border-dark-blue-border focus:ring-primary-blue focus:border-primary-blue',
+        primaryButton: 'bg-primary-blue text-white hover:bg-primary-blue-hover',
+        secondaryButton: 'bg-dark-blue-border hover:bg-dark-blue-border/80',
+    },
+    neon: {
+        modalBg: 'bg-card-bg border-border-color',
+        inputBg: 'bg-dark-bg border-border-color focus:ring-neon-cyan focus:border-neon-cyan',
+        primaryButton: 'bg-neon-cyan text-black',
+        secondaryButton: 'bg-border-color hover:bg-border-color/80',
+    },
+    minimal: {
+        modalBg: 'bg-minimal-card border-minimal-border',
+        inputBg: 'bg-gray-50 border-minimal-border focus:ring-minimal-accent focus:border-minimal-accent',
+        primaryButton: 'bg-minimal-accent text-white',
+        secondaryButton: 'bg-gray-200 hover:bg-gray-300',
+    },
+    brutalist: {
+        modalBg: 'brutalist-card bg-white',
+        inputBg: 'bg-white border-brutalist-border focus:ring-brutalist-accent focus:border-brutalist-accent',
+        primaryButton: 'brutalist-button bg-brutalist-accent text-white',
+        secondaryButton: 'brutalist-button bg-gray-200',
+    },
+    glass: {
+        modalBg: 'bg-white/10 border-white/20 backdrop-blur-md',
+        inputBg: 'bg-white/5 border-white/10 focus:ring-glass-accent focus:border-glass-accent',
+        primaryButton: 'bg-glass-accent text-black',
+        secondaryButton: 'bg-white/10 hover:bg-white/20',
+    },
+    cyberpunk: {
+        modalBg: 'bg-cyber-card border-cyber-border',
+        inputBg: 'bg-cyber-bg border-cyber-border focus:ring-cyber-accent focus:border-cyber-accent',
+        primaryButton: 'bg-cyber-accent text-black',
+        secondaryButton: 'bg-cyber-border hover:bg-cyber-border/80',
+    }
+  }[theme];
+  
+  const textClass = (theme === 'minimal' || theme === 'brutalist') ? 'text-minimal-text' : 'text-light-text';
+  const mediumTextClass = (theme === 'minimal' || theme === 'brutalist') ? 'text-minimal-medium-text' : 'text-medium-text';
 
-  const modalBg = theme === 'neon' ? 'bg-card-bg border-border-color' : 'bg-dark-blue-card border-dark-blue-border';
-  const inputBg = theme === 'neon' ? 'bg-dark-bg border-border-color focus:ring-neon-cyan focus:border-neon-cyan' : 'bg-dark-blue-bg border-dark-blue-border focus:ring-primary-blue focus:border-primary-blue';
-  const primaryButton = theme === 'neon' ? 'bg-neon-cyan text-black' : 'bg-primary-blue text-white hover:bg-primary-blue-hover';
-  const secondaryButton = theme === 'neon' ? 'bg-border-color hover:bg-border-color/80' : 'bg-dark-blue-border hover:bg-dark-blue-border/80';
 
   return (
     <div 
@@ -58,38 +96,38 @@ const DuplicateTransactionModal: React.FC<DuplicateTransactionModalProps> = ({ i
       onClick={onClose}
     >
       <div 
-        className={`rounded-2xl p-6 w-full max-w-sm m-4 border shadow-2xl transition-transform duration-300 transform scale-95 ${isOpen && '!scale-100'} ${modalBg}`}
+        className={`rounded-2xl p-6 w-full max-w-sm m-4 border shadow-2xl transition-transform duration-300 transform scale-95 ${isOpen && '!scale-100'} ${styles.modalBg}`}
         onClick={e => e.stopPropagation()}
       >
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold text-light-text">Duplicar Transação</h2>
-          <button onClick={onClose} className="text-medium-text hover:text-light-text">
+          <h2 className={`text-xl font-bold ${textClass}`}>Duplicar Transação</h2>
+          <button onClick={onClose} className={`${mediumTextClass} hover:${textClass}`}>
             <XMarkIcon className="w-6 h-6" />
           </button>
         </div>
 
-        <p className="text-medium-text mb-4">
-          Duplicar "<span className="font-semibold text-light-text">{transactionToDuplicate.description}</span>" para uma nova data.
+        <p className={`${mediumTextClass} mb-4`}>
+          Duplicar "<span className={`font-semibold ${textClass}`}>{transactionToDuplicate.description}</span>" para uma nova data.
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label htmlFor="newDate" className="block text-sm font-medium text-medium-text mb-1">Nova Data</label>
+            <label htmlFor="newDate" className={`block text-sm font-medium ${mediumTextClass} mb-1`}>Nova Data</label>
             <input
               type="date"
               id="newDate"
               value={newDate}
               onChange={(e) => setNewDate(e.target.value)}
-              className={`mt-1 block w-full border rounded-lg shadow-sm py-2 px-3 text-light-text focus:outline-none focus:ring-2 ${inputBg}`}
+              className={`mt-1 block w-full border rounded-lg shadow-sm py-2 px-3 ${textClass} focus:outline-none focus:ring-2 ${styles.inputBg}`}
               required
             />
           </div>
           
           <div className="flex justify-end space-x-3 pt-4">
-            <button type="button" onClick={onClose} className={`px-4 py-2 text-sm font-medium text-light-text rounded-lg ${secondaryButton}`}>
+            <button type="button" onClick={onClose} className={`px-4 py-2 text-sm font-medium ${textClass} rounded-lg ${styles.secondaryButton}`}>
               Cancelar
             </button>
-            <button type="submit" className={`px-4 py-2 text-sm font-medium rounded-lg ${primaryButton}`}>
+            <button type="submit" className={`px-4 py-2 text-sm font-medium rounded-lg ${styles.primaryButton}`}>
               Duplicar
             </button>
           </div>

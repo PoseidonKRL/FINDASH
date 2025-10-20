@@ -13,15 +13,26 @@ const formatCurrency = (value: number) => {
 
 const CustomTooltip = ({ active, payload, label }: any) => {
   const { theme } = useTheme();
+  const tooltipClasses = {
+      dark: 'bg-dark-blue-bg border border-dark-blue-border',
+      neon: 'bg-dark-bg border border-border-color',
+      minimal: 'bg-minimal-bg border border-minimal-border',
+      brutalist: 'brutalist-card',
+      glass: 'bg-black/20 border-white/20 backdrop-blur-lg',
+      cyberpunk: 'bg-cyber-bg border border-cyber-border'
+  }[theme];
+  const textClass = (theme === 'minimal' || theme === 'brutalist') ? 'text-minimal-text' : 'text-light-text';
+  const mediumTextClass = (theme === 'minimal' || theme === 'brutalist') ? 'text-minimal-medium-text' : 'text-medium-text';
+
   if (active && payload && payload.length) {
     return (
-      <div className={`p-4 rounded-lg shadow-lg ${theme === 'neon' ? 'bg-dark-bg border border-border-color' : 'bg-dark-blue-bg border border-dark-blue-border'}`}>
-        <p className="label text-base font-semibold text-light-text mb-2">{`${label}`}</p>
+      <div className={`p-4 rounded-lg shadow-lg ${tooltipClasses}`}>
+        <p className={`label text-base font-semibold ${textClass} mb-2`}>{`${label}`}</p>
         {payload.map((pld: any) => (
             <div key={pld.dataKey} style={{ color: pld.color }} className="flex items-center space-x-2">
                 <div style={{ backgroundColor: pld.color }} className="w-2.5 h-2.5 rounded-full"></div>
-                <span className="text-sm text-medium-text">{pld.dataKey}:</span>
-                <span className="text-sm font-bold text-light-text">{formatCurrency(pld.value)}</span>
+                <span className={`text-sm ${mediumTextClass}`}>{pld.dataKey}:</span>
+                <span className={`text-sm font-bold ${textClass}`}>{formatCurrency(pld.value)}</span>
             </div>
         ))}
       </div>
@@ -130,68 +141,148 @@ const ReportsPage: React.FC<ReportsPageProps> = ({ onEditTransaction }) => {
         setDuplicateModalOpen(true);
     };
 
-    const chartColors = {
-        income: theme === 'neon' ? 'hsl(var(--neon-green-hsl))' : '#22C55E',
-        expense: theme === 'neon' ? 'hsl(var(--neon-pink-hsl))' : '#EF4444',
-        grid: theme === 'neon' ? '#2a2a45' : '#334155'
+    const themeStyles = {
+        dark: {
+            card: 'bg-dark-blue-card border-dark-blue-border',
+            hover: 'hover:bg-dark-blue-border',
+            incomeColor: 'text-income-green',
+            expenseColor: 'text-expense-red',
+            accentColor: 'text-primary-blue',
+            filterAll: 'bg-primary-blue text-white',
+            filterIncome: 'bg-income-green text-white',
+            filterExpense: 'bg-expense-red text-white',
+            chartIncome: '#22C55E',
+            chartExpense: '#EF4444',
+            chartGrid: '#334155'
+        },
+        neon: {
+            card: 'bg-card-bg border-border-color',
+            hover: 'hover:bg-border-color',
+            incomeColor: 'text-neon-green',
+            expenseColor: 'text-neon-pink',
+            accentColor: 'text-neon-cyan',
+            filterAll: 'bg-neon-cyan text-black',
+            filterIncome: 'bg-neon-green text-black',
+            filterExpense: 'bg-neon-pink text-white',
+            chartIncome: 'hsl(var(--neon-green-hsl))',
+            chartExpense: 'hsl(var(--neon-pink-hsl))',
+            chartGrid: '#2a2a45'
+        },
+        minimal: {
+            card: 'bg-minimal-card border-minimal-border',
+            hover: 'hover:bg-gray-100',
+            incomeColor: 'text-minimal-income',
+            expenseColor: 'text-minimal-expense',
+            accentColor: 'text-minimal-accent',
+            filterAll: 'bg-minimal-accent text-white',
+            filterIncome: 'bg-minimal-income text-white',
+            filterExpense: 'bg-minimal-expense text-white',
+            chartIncome: '#10B981',
+            chartExpense: '#EF4444',
+            chartGrid: '#E5E7EB'
+        },
+        brutalist: {
+            card: 'brutalist-card',
+            hover: 'hover:bg-yellow-200',
+            incomeColor: 'text-brutalist-income',
+            expenseColor: 'text-brutalist-expense',
+            accentColor: 'text-brutalist-accent',
+            filterAll: 'brutalist-button bg-brutalist-accent text-white',
+            filterIncome: 'brutalist-button bg-brutalist-income text-white',
+            filterExpense: 'brutalist-button bg-brutalist-expense text-white',
+            chartIncome: '#16A34A',
+            chartExpense: '#DC2626',
+            chartGrid: '#000000'
+        },
+        glass: {
+            card: 'bg-white/10 border-white/20 backdrop-blur-md',
+            hover: 'hover:bg-white/20',
+            incomeColor: 'text-income-green',
+            expenseColor: 'text-expense-red',
+            accentColor: 'text-glass-accent',
+            filterAll: 'bg-glass-accent text-black',
+            filterIncome: 'bg-income-green text-white',
+            filterExpense: 'bg-expense-red text-white',
+            chartIncome: '#22C55E',
+            chartExpense: '#EF4444',
+            chartGrid: 'rgba(255, 255, 255, 0.2)'
+        },
+        cyberpunk: {
+            card: 'bg-cyber-card border-cyber-border',
+            hover: 'hover:bg-cyber-border',
+            incomeColor: 'text-cyber-income',
+            expenseColor: 'text-cyber-expense',
+            accentColor: 'text-cyber-accent',
+            filterAll: 'bg-cyber-accent text-black',
+            filterIncome: 'bg-cyber-income text-black',
+            filterExpense: 'bg-cyber-expense text-white',
+            chartIncome: '#0F0',
+            chartExpense: '#FF2A6D',
+            chartGrid: '#2c1a5d'
+        }
     };
+
+    const styles = themeStyles[theme];
+    const textClass = (theme === 'minimal' || theme === 'brutalist') ? 'text-minimal-text' : 'text-light-text';
+    const mediumTextClass = (theme === 'minimal' || theme === 'brutalist') ? 'text-minimal-medium-text' : 'text-medium-text';
+    const axisColor = (theme === 'minimal' || theme === 'brutalist') ? '#6B7280' : '#a0a0b0';
 
     return (
         <div className="p-4 md:p-8 space-y-6">
             <header className="py-4">
-                <h1 className="text-3xl font-bold text-light-text">Relatórios</h1>
+                <h1 className={`text-3xl font-bold ${textClass}`}>Relatórios</h1>
             </header>
             
             <div className="space-y-6 md:grid md:grid-cols-5 md:gap-6 md:space-y-0">
-                <div className={`md:col-span-5 p-4 sm:p-6 rounded-2xl border ${theme === 'neon' ? 'bg-card-bg border-border-color' : 'bg-dark-blue-card border-dark-blue-border'}`}>
+                <div className={`md:col-span-5 p-4 sm:p-6 rounded-2xl border ${styles.card}`}>
                     <div className="h-80 w-full">
                         <ResponsiveContainer>
                             <AreaChart data={chartData} margin={{ top: 5, right: 10, left: -10, bottom: 20 }}>
                                 <defs>
                                     <linearGradient id="colorIncome" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor={chartColors.income} stopOpacity={0.4}/>
-                                        <stop offset="95%" stopColor={chartColors.income} stopOpacity={0}/>
+                                        <stop offset="5%" stopColor={styles.chartIncome} stopOpacity={0.4}/>
+                                        <stop offset="95%" stopColor={styles.chartIncome} stopOpacity={0}/>
                                     </linearGradient>
                                     <linearGradient id="colorExpense" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor={chartColors.expense} stopOpacity={0.4}/>
-                                        <stop offset="95%" stopColor={chartColors.expense} stopOpacity={0}/>
+                                        <stop offset="5%" stopColor={styles.chartExpense} stopOpacity={0.4}/>
+                                        <stop offset="95%" stopColor={styles.chartExpense} stopOpacity={0}/>
                                     </linearGradient>
                                 </defs>
-                                <CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} />
-                                <XAxis dataKey="month" stroke="#a0a0b0" dy={10} style={{ fontSize: '0.8rem' }}>
-                                  <Label value="Mês" position="insideBottom" offset={-10} style={{ textAnchor: 'middle', fill: '#a0a0b0', fontSize: '0.9rem' }} />
+                                <CartesianGrid strokeDasharray="3 3" stroke={styles.chartGrid} />
+                                <XAxis dataKey="month" stroke={axisColor} dy={10} style={{ fontSize: '0.8rem' }}>
+                                  <Label value="Mês" position="insideBottom" offset={-10} style={{ textAnchor: 'middle', fill: axisColor, fontSize: '0.9rem' }} />
                                 </XAxis>
-                                <YAxis stroke="#a0a0b0" tickFormatter={(value) => `${(Number(value)/1000)}k`} dx={-5} style={{ fontSize: '0.8rem' }}>
-                                  <Label value="Valor (R$)" angle={-90} position="insideLeft" offset={10} style={{ textAnchor: 'middle', fill: '#a0a0b0', fontSize: '0.9rem' }} />
+                                <YAxis stroke={axisColor} tickFormatter={(value) => `${(Number(value)/1000)}k`} dx={-5} style={{ fontSize: '0.8rem' }}>
+                                  <Label value="Valor (R$)" angle={-90} position="insideLeft" offset={10} style={{ textAnchor: 'middle', fill: axisColor, fontSize: '0.9rem' }} />
                                 </YAxis>
                                 <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(160, 160, 176, 0.1)' }}/>
-                                <Legend wrapperStyle={{ paddingTop: '20px' }} />
+                                <Legend wrapperStyle={{ paddingTop: '20px', color: axisColor }} />
                                 
-                                <ReferenceArea x1={currentMonthLabel} x2={currentMonthLabel} stroke="none" fill="#a0a0b0" fillOpacity={0.1} />
+                                <ReferenceArea x1={currentMonthLabel} x2={currentMonthLabel} stroke="none" fill={axisColor} fillOpacity={0.1} />
                                 
-                                {filter !== 'expense' && <Area type="monotone" dataKey="Receitas" stroke={chartColors.income} fillOpacity={1} fill="url(#colorIncome)" strokeWidth={2.5} />}
-                                {filter !== 'income' && <Area type="monotone" dataKey="Despesas" stroke={chartColors.expense} fillOpacity={1} fill="url(#colorExpense)" strokeWidth={2.5} />}
+                                {filter !== 'expense' && <Area type="monotone" dataKey="Receitas" stroke={styles.chartIncome} fillOpacity={1} fill="url(#colorIncome)" strokeWidth={2.5} />}
+                                {filter !== 'income' && <Area type="monotone" dataKey="Despesas" stroke={styles.chartExpense} fillOpacity={1} fill="url(#colorExpense)" strokeWidth={2.5} />}
                             </AreaChart>
                         </ResponsiveContainer>
                     </div>
                 </div>
 
                 <div className="md:col-span-5 space-y-4">
-                     <div className={`flex justify-between items-center p-2 rounded-xl border ${theme === 'neon' ? 'bg-card-bg border-border-color' : 'bg-dark-blue-card border-dark-blue-border'}`}>
-                        <button onClick={handlePreviousMonth} className={`p-2 rounded-full transition-colors ${theme === 'neon' ? 'hover:bg-border-color' : 'hover:bg-dark-blue-border'}`}>
-                            <ChevronLeftIcon className="w-5 h-5 text-medium-text" />
+                     <div className={`flex justify-between items-center p-2 rounded-xl border ${styles.card}`}>
+                        <button onClick={handlePreviousMonth} className={`p-2 rounded-full transition-colors ${styles.hover}`}>
+                            <ChevronLeftIcon className={`w-5 h-5 ${mediumTextClass}`} />
                         </button>
-                        <h3 className="font-semibold text-lg text-light-text capitalize">
+                        <h3 className={`font-semibold text-lg ${textClass} capitalize`}>
                             {selectedDate.toLocaleString('pt-BR', { month: 'long', year: 'numeric' })}
                         </h3>
-                        <button onClick={handleNextMonth} className={`p-2 rounded-full transition-colors ${theme === 'neon' ? 'hover:bg-border-color' : 'hover:bg-dark-blue-border'}`}>
-                            <ChevronRightIcon className="w-5 h-5 text-medium-text" />
+                        <button onClick={handleNextMonth} className={`p-2 rounded-full transition-colors ${styles.hover}`}>
+                            <ChevronRightIcon className={`w-5 h-5 ${mediumTextClass}`} />
                         </button>
                     </div>
-                    <div className={`flex justify-center md:justify-start space-x-2 p-2 rounded-xl border self-start ${theme === 'neon' ? 'bg-card-bg border-border-color' : 'bg-dark-blue-card border-dark-blue-border'}`}>
-                        <button onClick={() => setFilter('all')} className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors ${filter === 'all' ? (theme === 'neon' ? 'bg-neon-cyan text-black' : 'bg-primary-blue text-white') : `text-medium-text ${theme === 'neon' ? 'hover:bg-border-color' : 'hover:bg-dark-blue-border'}`}`}>Todos</button>
-                        <button onClick={() => setFilter('income')} className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors ${filter === 'income' ? (theme === 'neon' ? 'bg-neon-green text-black' : 'bg-income-green text-white') : `text-medium-text ${theme === 'neon' ? 'hover:bg-border-color' : 'hover:bg-dark-blue-border'}`}`}>Receitas</button>
-                        <button onClick={() => setFilter('expense')} className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors ${filter === 'expense' ? (theme === 'neon' ? 'bg-neon-pink text-white' : 'bg-expense-red text-white') : `text-medium-text ${theme === 'neon' ? 'hover:bg-border-color' : 'hover:bg-dark-blue-border'}`}`}>Despesas</button>
+                    <div className={`flex justify-center md:justify-start space-x-2 p-2 rounded-xl border self-start ${styles.card}`}>
+                        <button onClick={() => setFilter('all')} className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors ${filter === 'all' ? styles.filterAll : `${mediumTextClass} ${styles.hover}`}`}>Todos</button>
+                        <button onClick={() => setFilter('income')} className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors ${filter === 'income' ? styles.filterIncome : `${mediumTextClass} ${styles.hover}`}`}>Receitas</button>
+                        <button onClick={() => setFilter('expense')} className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors ${filter === 'expense' ? styles.filterExpense : `${mediumTextClass} ${styles.hover}`}`}>Despesas</button>
                     </div>
                     <div className="space-y-3 max-h-[60vh] md:max-h-[26rem] overflow-y-auto pr-2 no-scrollbar">
                         {filteredTransactions.length > 0 ? filteredTransactions.map(t => {
@@ -201,27 +292,28 @@ const ReportsPage: React.FC<ReportsPageProps> = ({ onEditTransaction }) => {
                             const isExpanded = expandedRows.has(t.id);
                             const IconComponent = category ? getIcon(category.icon) : getIcon('default');
 
-                            const incomeColor = theme === 'neon' ? 'text-neon-green' : 'text-income-green';
-                            const expenseColor = theme === 'neon' ? 'text-neon-pink' : 'text-expense-red';
+                            const amountColor = isIncome ? styles.incomeColor : styles.expenseColor;
+                            const iconShadow = theme === 'neon' ? (isIncome ? 'shadow-[0_0_8px_hsla(var(--neon-green-hsl),0.5)] bg-dark-bg' : 'shadow-[0_0_8px_hsla(var(--neon-pink-hsl),0.5)] bg-dark-bg') : '';
+                            const iconBg = (theme === 'dark' || theme === 'glass') ? (isIncome ? 'bg-income-green/10' : 'bg-expense-red/10') : '';
 
                             return (
-                                <div key={t.id} className={`rounded-xl border p-4 ${theme === 'neon' ? 'bg-card-bg border-border-color' : 'bg-dark-blue-card border-dark-blue-border'}`}>
+                                <div key={t.id} className={`rounded-xl border p-4 ${styles.card}`}>
                                     <div className="flex items-start space-x-3">
-                                        <div className={`p-3 rounded-full flex-shrink-0 border border-transparent ${theme === 'neon' ? (isIncome ? 'shadow-[0_0_8px_hsla(var(--neon-green-hsl),0.5)] bg-dark-bg' : 'shadow-[0_0_8px_hsla(var(--neon-pink-hsl),0.5)] bg-dark-bg') : (isIncome ? 'bg-income-green/10' : 'bg-expense-red/10')}`}>
-                                            {category && <IconComponent className={`w-5 h-5 ${isIncome ? incomeColor : expenseColor}`} />}
+                                        <div className={`p-3 rounded-full flex-shrink-0 border border-transparent ${iconShadow} ${iconBg}`}>
+                                            {category && <IconComponent className={`w-5 h-5 ${amountColor}`} />}
                                         </div>
                                         <div className="flex-1 min-w-0">
                                             <div className="flex justify-between items-start">
                                                 <div>
-                                                    <p className="font-semibold text-light-text break-words">{t.description}</p>
-                                                    <p className="text-sm text-medium-text">{new Date(t.date).toLocaleDateString('pt-BR')}</p>
+                                                    <p className={`font-semibold ${textClass} break-words`}>{t.description}</p>
+                                                    <p className={`text-sm ${mediumTextClass}`}>{new Date(t.date).toLocaleDateString('pt-BR')}</p>
                                                 </div>
                                                  <div className="flex-shrink-0 w-5 h-5 flex items-center justify-center ml-2">
                                                     {(hasSubItems || t.notes) && (
                                                         <button 
                                                             onClick={() => toggleRowExpansion(t.id)}
                                                             aria-expanded={isExpanded}
-                                                            className="text-medium-text"
+                                                            className={`${mediumTextClass}`}
                                                         >
                                                             {isExpanded ? <ChevronDownIcon className="w-5 h-5" /> : <ChevronRightIcon className="w-5 h-5" />}
                                                         </button>
@@ -229,25 +321,25 @@ const ReportsPage: React.FC<ReportsPageProps> = ({ onEditTransaction }) => {
                                                 </div>
                                             </div>
                                             <div className="flex justify-between items-center mt-2">
-                                                <p className={`font-bold text-base ${isIncome ? incomeColor : expenseColor}`}>
+                                                <p className={`font-bold text-base ${amountColor}`}>
                                                     {isIncome ? '+' : '-'} {formatCurrency(t.amount)}
                                                 </p>
                                                 <div className="flex space-x-1">
-                                                    <button onClick={() => handleOpenDuplicateModal(t)} className={`p-1 text-medium-text ${theme === 'neon' ? 'hover:text-neon-cyan' : 'hover:text-primary-blue'}`}><DocumentDuplicateIcon className="w-4 h-4" /></button>
-                                                    <button onClick={() => onEditTransaction(t)} className={`p-1 text-medium-text ${theme === 'neon' ? 'hover:text-neon-cyan' : 'hover:text-primary-blue'}`}><PencilIcon className="w-4 h-4" /></button>
-                                                    <button onClick={() => handleOpenDeleteConfirm(t.id)} className={`p-1 text-medium-text ${theme === 'neon' ? 'hover:text-neon-pink' : 'hover:text-expense-red'}`}><TrashIcon className="w-4 h-4" /></button>
+                                                    <button onClick={() => handleOpenDuplicateModal(t)} className={`p-1 ${mediumTextClass} hover:${styles.accentColor}`}><DocumentDuplicateIcon className="w-4 h-4" /></button>
+                                                    <button onClick={() => onEditTransaction(t)} className={`p-1 ${mediumTextClass} hover:${styles.accentColor}`}><PencilIcon className="w-4 h-4" /></button>
+                                                    <button onClick={() => handleOpenDeleteConfirm(t.id)} className={`p-1 ${mediumTextClass} hover:${styles.expenseColor}`}><TrashIcon className="w-4 h-4" /></button>
                                                 </div>
                                             </div>
                                              {isExpanded && (hasSubItems || t.notes) && (
-                                                <div className={`pt-3 mt-3 space-y-2 ${theme === 'neon' ? 'border-t border-border-color' : 'border-t border-dark-blue-border'}`}>
-                                                     {t.notes && <p className="text-sm text-medium-text italic mb-2 break-words">Nota: {t.notes}</p>}
+                                                <div className={`pt-3 mt-3 space-y-2 border-t ${(theme === 'dark' || theme === 'glass') ? 'border-dark-blue-border' : (theme === 'minimal' || theme === 'brutalist') ? 'border-minimal-border' : 'border-border-color'}`}>
+                                                     {t.notes && <p className={`text-sm ${mediumTextClass} italic mb-2 break-words`}>Nota: {t.notes}</p>}
                                                     {t.subItems?.map(item => (
                                                         <div key={item.id} className="flex justify-between items-start text-sm gap-4">
-                                                            <p className="text-medium-text break-words flex-1 min-w-0">{item.description}</p>
+                                                            <p className={`${mediumTextClass} break-words flex-1 min-w-0`}>{item.description}</p>
                                                             <p className={`font-medium whitespace-nowrap ${
                                                                 item.description === 'Sobra'
-                                                                ? (theme === 'neon' ? 'text-neon-green' : 'text-income-green')
-                                                                : (isIncome ? `${incomeColor}/90` : `${expenseColor}/90`)
+                                                                ? styles.incomeColor
+                                                                : `${amountColor} opacity-90`
                                                             }`}>
                                                                 {isIncome ? '+' : '-'} {formatCurrency(item.amount)}
                                                             </p>
@@ -260,8 +352,8 @@ const ReportsPage: React.FC<ReportsPageProps> = ({ onEditTransaction }) => {
                                 </div>
                             );
                         }) : (
-                            <div className={`text-center py-16 rounded-2xl border ${theme === 'neon' ? 'bg-card-bg border-border-color' : 'bg-dark-blue-card border-dark-blue-border'}`}>
-                                <p className="text-medium-text">Nenhuma transação encontrada para este período.</p>
+                            <div className={`text-center py-16 rounded-2xl border ${styles.card}`}>
+                                <p className={`${mediumTextClass}`}>Nenhuma transação encontrada para este período.</p>
                             </div>
                         )}
                     </div>
