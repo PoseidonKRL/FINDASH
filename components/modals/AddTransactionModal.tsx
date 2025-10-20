@@ -15,7 +15,7 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({ isOpen, onClo
   const { theme } = useTheme();
   const [type, setType] = useState<TransactionType>(TransactionType.EXPENSE);
   const [description, setDescription] = useState('');
-  const [initialAmountValue, setInitialAmountValue] = useState<number | string>('');
+  const [totalAmount, setTotalAmount] = useState<number | string>('');
   const [categoryId, setCategoryId] = useState('');
   const [date, setDate] = useState('');
   const [notes, setNotes] = useState('');
@@ -25,18 +25,21 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({ isOpen, onClo
 
   const { subItemsSum, remainder } = useMemo(() => {
     const sum = subItems.reduce((s, item) => s + Number(item.amount || 0), 0);
-    const rem = type === TransactionType.EXPENSE ? Number(initialAmountValue || 0) - sum : 0;
+    const rem = type === TransactionType.EXPENSE ? Number(totalAmount || 0) - sum : 0;
     return { subItemsSum: sum, remainder: rem };
-  }, [subItems, initialAmountValue, type]);
+  }, [subItems, totalAmount, type]);
 
   const finalTransactionAmount = useMemo(() => {
+    if (type === TransactionType.EXPENSE) {
+      return Number(totalAmount || 0);
+    }
     return subItemsSum;
-  }, [subItemsSum]);
+  }, [subItemsSum, totalAmount, type]);
 
   const resetForm = () => {
     setType(TransactionType.EXPENSE);
     setDescription('');
-    setInitialAmountValue('');
+    setTotalAmount('');
     setCategoryId('');
     setDate(new Date().toISOString().split('T')[0]);
     setNotes('');
@@ -53,25 +56,20 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({ isOpen, onClo
             setNotes(transactionToEdit.notes || '');
 
             if (transactionToEdit.type === TransactionType.EXPENSE) {
-                setInitialAmountValue(transactionToEdit.initialAmount || transactionToEdit.amount);
-                const userSubItems = transactionToEdit.subItems?.filter(si => si.description !== 'Sobra') || [];
+                setTotalAmount(transactionToEdit.amount);
+                const userSubItems = transactionToEdit.subItems?.filter(si => si.description !== 'Sobra');
 
                 if (userSubItems && userSubItems.length > 0) {
                     setSubItems(userSubItems);
                 } else {
-                    // For old transactions that didn't have sub-items, create one
-                    if (transactionToEdit.subItems?.length === 0 || !transactionToEdit.subItems) {
-                         setSubItems([{ id: `si${Date.now()}`, description: '', amount: transactionToEdit.amount }]);
-                    } else {
-                         setSubItems([{ id: `si${Date.now()}`, description: '', amount: 0 }]);
-                    }
+                    setSubItems([{ id: `si${Date.now()}`, description: '', amount: 0 }]);
                 }
             } else { // Handle Income
-                setInitialAmountValue('');
+                setTotalAmount('');
                 if (transactionToEdit.subItems && transactionToEdit.subItems.length > 0) {
                   setSubItems(transactionToEdit.subItems);
                 } else {
-                  setSubItems([{ id: `si${Date.now()}`, description: transactionToEdit.description, amount: transactionToEdit.amount }]);
+                  setSubItems([{ id: `si${Date.now()}`, description: '', amount: transactionToEdit.amount }]);
                 }
             }
         } else {
@@ -86,6 +84,14 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({ isOpen, onClo
     
     let finalSubItems = subItems.filter(item => item.description && item.amount > 0);
 
+    if (type === TransactionType.EXPENSE && remainder > 0.001) { // Epsilon for float issues
+        finalSubItems.push({
+            id: `si${Date.now()}_sobra`,
+            description: 'Sobra',
+            amount: remainder
+        });
+    }
+
     const transactionData = {
         amount: finalTransactionAmount,
         description,
@@ -93,7 +99,6 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({ isOpen, onClo
         type,
         notes,
         subItems: finalSubItems.length > 0 ? finalSubItems : undefined,
-        initialAmount: type === TransactionType.EXPENSE && Number(initialAmountValue) > finalTransactionAmount ? Number(initialAmountValue) : undefined,
         date: new Date(date + 'T00:00:00').toISOString()
     };
 
@@ -183,8 +188,8 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({ isOpen, onClo
 
                 {type === TransactionType.EXPENSE && (
                   <div className="md:col-span-2">
-                      <label htmlFor="initialAmountValue" className="block text-sm font-medium text-medium-text mb-1">Valor Inicial</label>
-                      <input type="number" step="0.01" id="initialAmountValue" value={initialAmountValue} onChange={(e) => setInitialAmountValue(e.target.value)} placeholder="R$0,00" className={`mt-1 block w-full border rounded-lg shadow-sm py-2 px-3 text-light-text focus:outline-none focus:ring-2 ${inputBg}`} />
+                      <label htmlFor="totalAmount" className="block text-sm font-medium text-medium-text mb-1">Valor Inicial</label>
+                      <input type="number" step="0.01" id="totalAmount" value={totalAmount} onChange={(e) => setTotalAmount(e.target.value)} placeholder="R$0,00" className={`mt-1 block w-full border rounded-lg shadow-sm py-2 px-3 text-light-text focus:outline-none focus:ring-2 ${inputBg}`} required />
                   </div>
                 )}
                 
@@ -229,10 +234,10 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({ isOpen, onClo
             </div>
 
             <div className={`border-t pt-4 space-y-2 ${theme === 'neon' ? 'border-border-color' : 'border-dark-blue-border'}`}>
-                {type === TransactionType.EXPENSE && Number(initialAmountValue) > 0 && (
+                {type === TransactionType.EXPENSE && Number(totalAmount) > 0 && (
                     <div className="flex justify-between items-center">
                         <p className="text-md font-semibold text-medium-text">Sobra:</p>
-                        <p className={`text-md font-semibold ${remainder >= 0 ? (theme === 'neon' ? 'text-neon-green' : 'text-income-green') : (theme === 'neon' ? 'text-neon-red' : 'text-expense-red')}`}>
+                        <p className={`text-md font-semibold ${theme === 'neon' ? 'text-neon-green' : 'text-income-green'}`}>
                             {remainder.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
                         </p>
                     </div>
