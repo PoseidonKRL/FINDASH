@@ -197,12 +197,17 @@ const ReportsPage: React.FC<ReportsPageProps> = ({ onEditTransaction }) => {
                         {filteredTransactions.length > 0 ? filteredTransactions.map(t => {
                             const category = getCategory(t.categoryId);
                             const isIncome = t.type === TransactionType.INCOME;
-                            const hasSubItems = t.subItems && t.subItems.length > 0;
+                            const actualSubItems = t.subItems?.filter(item => item.description !== 'Sobra') || [];
+                            const hasSubItems = actualSubItems.length > 0;
                             const isExpanded = expandedRows.has(t.id);
                             const IconComponent = category ? getIcon(category.icon) : getIcon('default');
 
                             const incomeColor = theme === 'neon' ? 'text-neon-green' : 'text-income-green';
                             const expenseColor = theme === 'neon' ? 'text-neon-pink' : 'text-expense-red';
+
+                            const sobra = (t.initialAmount && t.initialAmount > t.amount) 
+                                ? t.initialAmount - t.amount 
+                                : 0;
 
                             return (
                                 <div key={t.id} className={`rounded-xl border p-4 ${theme === 'neon' ? 'bg-card-bg border-border-color' : 'bg-dark-blue-card border-dark-blue-border'}`}>
@@ -217,7 +222,7 @@ const ReportsPage: React.FC<ReportsPageProps> = ({ onEditTransaction }) => {
                                                     <p className="text-sm text-medium-text">{new Date(t.date).toLocaleDateString('pt-BR')}</p>
                                                 </div>
                                                  <div className="flex-shrink-0 w-5 h-5 flex items-center justify-center ml-2">
-                                                    {(hasSubItems || t.notes) && (
+                                                    {(hasSubItems || t.notes || sobra > 0) && (
                                                         <button 
                                                             onClick={() => toggleRowExpansion(t.id)}
                                                             aria-expanded={isExpanded}
@@ -238,15 +243,25 @@ const ReportsPage: React.FC<ReportsPageProps> = ({ onEditTransaction }) => {
                                                     <button onClick={() => handleOpenDeleteConfirm(t.id)} className={`p-1 text-medium-text ${theme === 'neon' ? 'hover:text-neon-pink' : 'hover:text-expense-red'}`}><TrashIcon className="w-4 h-4" /></button>
                                                 </div>
                                             </div>
-                                             {isExpanded && (hasSubItems || t.notes) && (
+                                             {isExpanded && (hasSubItems || t.notes || sobra > 0.001) && (
                                                 <div className={`pt-3 mt-3 space-y-2 ${theme === 'neon' ? 'border-t border-border-color' : 'border-t border-dark-blue-border'}`}>
                                                      {t.notes && <p className="text-sm text-medium-text italic mb-2 break-words">Nota: {t.notes}</p>}
-                                                    {t.subItems?.map(item => (
+                                                    {actualSubItems.map(item => (
                                                         <div key={item.id} className="flex justify-between items-start text-sm gap-4">
                                                             <p className="text-medium-text break-words flex-1 min-w-0">{item.description}</p>
-                                                            <p className={`font-medium whitespace-nowrap ${isIncome ? `${incomeColor}/90` : `${expenseColor}/90`}`}>{isIncome ? '+' : '-'} {formatCurrency(item.amount)}</p>
+                                                            <p className={`font-medium whitespace-nowrap ${isIncome ? `${incomeColor}/90` : `${expenseColor}/90`}`}>
+                                                                {isIncome ? '+' : '-'} {formatCurrency(item.amount)}
+                                                            </p>
                                                         </div>
                                                     ))}
+                                                    {sobra > 0.001 && (
+                                                        <div className="flex justify-between items-start text-sm gap-4">
+                                                            <p className="text-medium-text break-words flex-1 min-w-0">Sobra</p>
+                                                            <p className={`font-medium whitespace-nowrap ${theme === 'neon' ? 'text-neon-green' : 'text-income-green'}`}>
+                                                                {formatCurrency(sobra)}
+                                                            </p>
+                                                        </div>
+                                                    )}
                                                 </div>
                                             )}
                                         </div>

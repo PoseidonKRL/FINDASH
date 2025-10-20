@@ -25,6 +25,7 @@ export interface Transaction {
   date: string;
   notes?: string;
   subItems?: SubItem[];
+  initialAmount?: number;
 }
 
 export interface Goal {
